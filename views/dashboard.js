@@ -60,7 +60,7 @@ function svgEl(name, attrs) {
 }
 
 export function render(root, ctx) {
-  const { store, ui, jobs, now, openJob, openMember } = ctx;
+  const { store, ui, jobs, now, openJob, openMember, go } = ctx;
   const { h } = ui;
   const list = Array.isArray(jobs) ? jobs.filter(Boolean) : [];
   const tally = countJobs(store, list, now);
@@ -75,7 +75,8 @@ export function render(root, ctx) {
     ),
     h("div", { class: "dash-lists" },
       jobPanel(h, ui, store, "Blocked", blocked, now, openJob, "Nothing blocked. Smooth sailing.", "check-circle"),
-      jobPanel(h, ui, store, "Overdue", overdue, now, openJob, "Nothing overdue. Smooth sailing.", "check")
+      jobPanel(h, ui, store, "Overdue", overdue, now, openJob, "Nothing overdue. Smooth sailing.", "check"),
+      automationsPanel(h, ui, store, now, go)
     )
   ));
 }
@@ -278,6 +279,134 @@ function boardRow(h, ui, store, row, index, max, openMember) {
     ),
     h("span", { class: "dash-board-track", "aria-hidden": "true" }, fill)
   );
+}
+
+function automationsPanel(h, ui, store, now, go) {
+  const stats = automationSnapshot(store, now);
+  return h("section", { class: "dash-panel dash-auto" },
+    h("div", { class: "dash-panel-head" },
+      h("h2", { class: "dash-panel-title", text: "Automations" })
+    ),
+    autoKpis(h, stats),
+    autoBlock(h, ui, store, go, "Failing", stats.failing, "failing", "Nothing failing."),
+    autoBlock(h, ui, store, go, "Next runs", stats.upcoming, "upcoming", "No upcoming runs.")
+  );
+}
+
+function automationSnapshot(store, now) {
+  const empty = {
+    total: 0,
+    byStatus: { active: 0, failing: 0, paused: 0, draft: 0 },
+    failing: [],
+    upcoming: []
+  };
+  if (typeof store.automationStats !== "function") return empty;
+  try {
+    const stats = store.automationStats(now);
+    if (!stats || typeof stats !== "object") return empty;
+    const by = stats.byStatus && typeof stats.byStatus === "object" ? stats.byStatus : {};
+    return {
+      total: num(stats.total),
+      byStatus: {
+        active: num(by.active),
+        failing: num(by.failing),
+        paused: num(by.paused),
+        draft: num(by.draft)
+      },
+      failing: asAutos(stats.failing),
+      upcoming: asAutos(stats.upcoming)
+    };
+  } catch {
+    return empty;
+  }
+}
+
+function asAutos(list) {
+  if (!Array.isArray(list)) return [];
+  return list.filter((auto) => auto && typeof auto === "object");
+}
+
+function autoKpis(h, stats) {
+  const by = stats.byStatus || {};
+  const items = [
+    ["active", "Active", by.active],
+    ["failing", "Failing", by.failing],
+    ["draft", "Draft", by.draft]
+  ];
+  return h("div", { class: "dash-auto-kpis", role: "group", "aria-label": "Automation totals" },
+    items.map(([tone, label, value]) => h("span", { class: "dash-auto-kpi", "data-tone": tone },
+      h("span", { class: "dash-auto-dot", "aria-hidden": "true" }),
+      h("span", { class: "dash-auto-kpi-num", text: String(num(value)) }),
+      h("span", { class: "dash-auto-kpi-label", text: label })
+    ))
+  );
+}
+
+function autoBlock(h, ui, store, go, label, items, kind, emptyText) {
+  return h("div", { class: "dash-auto-block" },
+    h("h3", { class: "dash-auto-label", text: label }),
+    items.length
+      ? h("ul", { class: "dash-auto-list", role: "list", "aria-label": label },
+        items.map((auto) => dashAutoRow(h, ui, store, auto, go, kind))
+      )
+      : h("p", { class: "dash-auto-empty", text: emptyText })
+  );
+}
+
+function dashAutoRow(h, ui, store, auto, go, kind) {
+  const person = crewMember(store, auto.memberId);
+  const stamp = runStamp(store, kind === "upcoming" ? auto.nextRunAt : auto.lastRunAt);
+  const name = typeof auto.name === "string" ? auto.name.trim() : "";
+  const whenLabel = kind === "upcoming" ? "Next run " : "Last run ";
+  const time = stamp.iso
+    ? h("time", { class: "dash-auto-time", datetime: stamp.iso },
+      h("span", { class: "dash-auto-sr", text: whenLabel }),
+      stamp.text
+    )
+    : h("span", { class: "dash-auto-time" },
+      h("span", { class: "dash-auto-sr", text: whenLabel }),
+      stamp.text
+    );
+  return h("li", { role: "listitem" },
+    h("button", {
+      type: "button",
+      class: "dash-auto-row",
+      "data-kind": kind,
+      on: { click: () => openMemberAutomations(go, auto.memberId) }
+    },
+      h("span", { class: "dash-auto-av", "aria-hidden": "true" }, ui.avatar(person, { size: "xs", ring: true })),
+      h("span", { class: "dash-auto-body" },
+        h("span", { class: "dash-auto-name", text: displayName(person) }),
+        h("span", { class: "dash-auto-meta" },
+          name ? h("span", { class: "dash-auto-sub", text: name }) : null,
+          time
+        )
+      )
+    )
+  );
+}
+
+function crewMember(store, id) {
+  if (!id) return { id: "", name: "Unknown" };
+  const found = typeof store.member === "function" ? store.member(id) : null;
+  if (found && typeof found === "object") return found;
+  return { id: String(id), name: String(id) };
+}
+
+function runStamp(store, iso) {
+  if (!iso || typeof store.fmtDateTime !== "function") return { text: "-", iso: "" };
+  try {
+    const text = store.fmtDateTime(iso);
+    return text ? { text: String(text), iso: String(iso) } : { text: "-", iso: "" };
+  } catch {
+    return { text: "-", iso: "" };
+  }
+}
+
+function openMemberAutomations(go, memberId) {
+  if (typeof go !== "function") return;
+  const id = memberId == null ? "" : String(memberId).trim();
+  go({ view: "automations", member: id || null });
 }
 
 function jobPanel(h, ui, store, title, jobs, now, openJob, emptyText, iconName) {

@@ -1,4 +1,10 @@
-import { PRIORITY_LABEL, STATUS_LABEL, division as findDivision, member as findMember } from "./store.js";
+import {
+  AUTOMATION_STATUS_LABEL,
+  PRIORITY_LABEL,
+  STATUS_LABEL,
+  division as findDivision,
+  member as findMember,
+} from "./store.js";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 const AVATAR_PX = { xs: 20, sm: 28, md: 36, lg: 56, xl: 96 };
@@ -27,6 +33,19 @@ const ACTION_TINT = {
   blocked: "var(--st-blocked, #ef4444)",
   done: "var(--st-complete, #22c55e)",
   comment: "hsl(var(--muted-foreground, 40 8% 36%))",
+};
+
+const AUTO_TONE = {
+  active: "var(--st-complete, #22c55e)",
+  failing: "var(--st-blocked, #ef4444)",
+  paused: "var(--st-review, #f59e0b)",
+  draft: "var(--st-todo, #64748b)",
+};
+
+const TRIGGER_ICON = {
+  schedule: "clock",
+  event: "zap",
+  manual: "play",
 };
 
 const ICONS = {
@@ -110,6 +129,15 @@ const ICONS = {
     ["path", { d: "M12 17h.01" }],
   ],
   play: [["path", { d: "M8 5v14l11-7L8 5z" }]],
+  zap: [["path", { d: "M13 2 3 14h9l-1 8 10-12h-9l1-8z" }]],
+  bot: [
+    ["path", { d: "M12 8V4H8" }],
+    ["rect", { width: "16", height: "12", x: "4", y: "8", rx: "2" }],
+    ["path", { d: "M2 14h2" }],
+    ["path", { d: "M20 14h2" }],
+    ["path", { d: "M15 13v2" }],
+    ["path", { d: "M9 13v2" }],
+  ],
   "arrow-right": [
     ["path", { d: "M5 12h14" }],
     ["path", { d: "m12 5 7 7-7 7" }],
@@ -495,6 +523,21 @@ export function statusChip(status) {
   });
 }
 
+export function autoStatusChip(status) {
+  const key = safeToken(status);
+  const known = !!(key && AUTOMATION_STATUS_LABEL[key]);
+  return h("span", {
+    class: ["chip", "chip-auto", known ? `chip-auto-${key}` : "chip-auto-unknown"],
+    text: AUTOMATION_STATUS_LABEL[status] || (status ? String(status) : "Unknown"),
+    style: {
+      "--chip": known ? AUTO_TONE[key] : "#64748b",
+      backgroundColor: "color-mix(in srgb, var(--chip, #64748b) 16%, transparent)",
+      color: "color-mix(in srgb, var(--chip, #64748b) 40%, hsl(var(--foreground, 36 25% 4%)))",
+      borderColor: "color-mix(in srgb, var(--chip, #64748b) 32%, transparent)",
+    },
+  });
+}
+
 export function priorityChip(priority) {
   const key = safeToken(priority);
   const known = !!(key && PRIORITY_LABEL[key]);
@@ -523,6 +566,10 @@ export function actionIcon(action) {
   const node = icon(ACTION_ICON[action] || "message", { size: 16 });
   if (ACTION_TINT[action]) node.style.color = ACTION_TINT[action];
   return node;
+}
+
+export function triggerIcon(trigger) {
+  return icon(TRIGGER_ICON[trigger] || "clock", { size: 16 });
 }
 
 export function empty(text, iconName = "board") {

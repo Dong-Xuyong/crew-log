@@ -656,3 +656,139 @@ export const DEMO_JOBS = [
     ],
   }),
 ];
+
+function makeRun(id, at, result, text, linkedJobId = null) {
+  return { id, at, result, text, jobId: linkedJobId };
+}
+
+function makeAuto(auto) {
+  const runs = auto.runs;
+  const last = runs[runs.length - 1];
+  return {
+    id: auto.id,
+    memberId: auto.memberId,
+    name: auto.name,
+    trigger: auto.trigger,
+    schedule: auto.schedule ?? null,
+    cron: auto.cron ?? null,
+    event: auto.event ?? null,
+    action: auto.action,
+    channel: auto.channel ?? null,
+    status: auto.status,
+    lastRunAt: last.at,
+    lastResult: last.result,
+    nextRunAt: auto.nextRunAt ?? null,
+    runs,
+    createdAt: auto.createdAt,
+    updatedAt: last.at,
+  };
+}
+
+export const DEMO_AUTOMATIONS = [
+  makeAuto({
+    id: "auto_haredas_example",
+    memberId: "haredas",
+    name: "EXAMPLE · Morning brief",
+    trigger: "schedule",
+    schedule: "Daily 07:00 PT",
+    cron: "0 7 * * *",
+    action: "Send Dong the morning brief: weather, calendar, and the top 3 jobs.",
+    channel: "telegram",
+    status: "active",
+    nextRunAt: isoDaysAgo(-1, 7, 0),
+    createdAt: isoDaysAgo(12, 8, 0),
+    runs: [
+      makeRun("run_hb01", isoDaysAgo(3, 7, 1), "ok", "Sent the brief with weather and the top 3 jobs."),
+      makeRun("run_hb02", isoDaysAgo(2, 7, 4), "error", "Telegram rejected the brief before it reached Dong."),
+      makeRun("run_hb03", isoDaysAgo(1, 7, 2), "ok", "Sent the brief with weather, the calendar, and the top 3 jobs."),
+      makeRun(
+        "run_hb04",
+        isoDaysAgo(0, 7, 3),
+        "ok",
+        "Sent the brief with weather, two calendar items, and the Ship Crew Log job.",
+        iceJobId
+      ),
+    ],
+  }),
+  makeAuto({
+    id: "auto_ace_example",
+    memberId: "ace",
+    name: "EXAMPLE · Thesis check-in",
+    trigger: "schedule",
+    schedule: "Weekdays 10:00 PT",
+    cron: "0 10 * * 1-5",
+    action: "Check the thesis draft for new notes since yesterday and list anything still blocked.",
+    status: "failing",
+    createdAt: isoDaysAgo(18, 10, 0),
+    runs: [
+      makeRun("run_ax01", isoDaysAgo(4, 10, 1), "ok", "Filed the check-in: two new notes, nothing blocked."),
+      makeRun("run_ax02", isoDaysAgo(3, 10, 2), "ok", "Filed the check-in: one new note on the literature section."),
+      makeRun("run_ax03", isoDaysAgo(2, 10, 5), "error", "The thesis folder did not open, so the check-in did not send."),
+      makeRun("run_ax04", isoDaysAgo(1, 10, 4), "error", "The thesis folder did not open again, so the check-in did not send."),
+    ],
+  }),
+  makeAuto({
+    id: "auto_perona_example",
+    memberId: "perona",
+    name: "EXAMPLE · Image request queue",
+    trigger: "event",
+    event: "New image request from Dong",
+    action: "Add the new image request to the queue with the subject, size, and due date.",
+    status: "paused",
+    createdAt: isoDaysAgo(15, 11, 0),
+    runs: [
+      makeRun("run_pr01", isoDaysAgo(6, 14, 10), "ok", "Queued a 1024px portrait request for Nami."),
+      makeRun("run_pr02", isoDaysAgo(5, 16, 40), "skipped", "Skipped a duplicate request for the same Nami portrait."),
+      makeRun("run_pr03", isoDaysAgo(4, 9, 20), "error", "The queue file was locked, so the Franky portrait request did not save."),
+      makeRun("run_pr04", isoDaysAgo(3, 15, 5), "ok", "Queued a 1024px portrait request for Zoro."),
+    ],
+  }),
+  makeAuto({
+    id: "auto_luffy_example",
+    memberId: "luffy",
+    name: "EXAMPLE · Crew standup report",
+    trigger: "manual",
+    action: "Send Dong the crew standup when he asks: who finished, who is blocked, and what needs a decision.",
+    channel: "telegram",
+    status: "draft",
+    createdAt: isoDaysAgo(9, 21, 0),
+    runs: [
+      makeRun("run_lf01", isoDaysAgo(2, 21, 5), "ok", "Sent the standup: four jobs finished, one blocked, no decision needed."),
+      makeRun("run_lf02", isoDaysAgo(1, 21, 8), "ok", "Sent the standup: two jobs finished, the thesis job still blocked."),
+    ],
+  }),
+  makeAuto({
+    id: "auto_iceburg_example",
+    memberId: "iceburg",
+    name: "EXAMPLE · Deploy and CI watch",
+    trigger: "event",
+    event: "GitHub CI failure on Dong's repos",
+    action: "Report the GitHub CI failure with the repo, the workflow, and the first error line.",
+    channel: "github",
+    status: "active",
+    nextRunAt: isoDaysAgo(-1, 11, 0),
+    createdAt: isoDaysAgo(11, 11, 0),
+    runs: [
+      makeRun("run_ib01", isoDaysAgo(2, 16, 12), "error", "Saw a CI failure on progress-sync but the report did not send."),
+      makeRun("run_ib02", isoDaysAgo(1, 18, 6), "ok", "Reported the Crew Log workflow failure and named the failing step."),
+    ],
+  }),
+  makeAuto({
+    id: "auto_usopp_example",
+    memberId: "usopp",
+    name: "EXAMPLE · Speaking drill prompt",
+    trigger: "schedule",
+    schedule: "Daily 12:30 PT",
+    cron: "30 12 * * *",
+    action: "Send today's speaking drill prompt with the time limit and the scoring focus.",
+    status: "active",
+    nextRunAt: isoDaysAgo(-1, 12, 30),
+    createdAt: isoDaysAgo(8, 12, 30),
+    runs: [
+      makeRun("run_ud01", isoDaysAgo(3, 12, 31), "ok", "Sent a 3-minute drill prompt scored on structure."),
+      makeRun("run_ud02", isoDaysAgo(2, 12, 33), "error", "The prompt did not send because the notes page timed out."),
+      makeRun("run_ud03", isoDaysAgo(1, 12, 30), "ok", "Sent a 3-minute drill prompt scored on delivery."),
+      makeRun("run_ud04", isoDaysAgo(0, 12, 32), "ok", "Sent a 3-minute drill prompt scored on the opening line."),
+    ],
+  }),
+];

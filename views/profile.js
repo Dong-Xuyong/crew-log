@@ -50,6 +50,7 @@ export function render(root, ctx) {
     backButton(h, ui, go),
     hero(h, ui, store, member, openMember),
     statTiles(h, stats),
+    automationsSection(h, ui, store, member, now, go),
     openSection(h, ui, store, openJobs, now, openJob),
     timeline(h, ui, store, member, openJob)
   ));
@@ -147,6 +148,121 @@ function statTiles(h, stats) {
       h("div", { class: "profile-stat-label", text: label })
     ))
   );
+}
+
+function automationsSection(h, ui, store, member, now, go) {
+  const list = memberAutomations(store, member && member.id);
+  return h("section", { class: "profile-section profile-auto" },
+    h("div", { class: "profile-section-head" },
+      h("h2", { class: "profile-section-title", text: "Automations" }),
+      h("button", {
+        type: "button",
+        class: "profile-auto-all",
+        "aria-label": "See all automations",
+        on: { click: () => openAutomations(go, member && member.id) }
+      }, "See all")
+    ),
+    list.length
+      ? h("ul", { class: "profile-auto-list", role: "list" },
+        list.map((auto) => automationRow(h, ui, store, auto, now))
+      )
+      : h("p", { class: "profile-auto-empty", text: "No automations yet" })
+  );
+}
+
+function openAutomations(go, id) {
+  if (typeof go !== "function") return;
+  go({ view: "automations", member: id || null, m: null });
+}
+
+function memberAutomations(store, id) {
+  if (!id || typeof store.automationsFor !== "function") return [];
+  try {
+    const list = store.automationsFor(id);
+    if (!Array.isArray(list)) return [];
+    return list.filter((auto) => auto && typeof auto === "object");
+  } catch {
+    return [];
+  }
+}
+
+function automationRow(h, ui, store, auto, now) {
+  const status = statusToken(auto.status);
+  const cadence = cadenceText(auto);
+  const props = { class: "profile-auto-row" };
+  if (status) props["data-status"] = status;
+  return h("li", { role: "listitem" },
+    h("div", props,
+      h("span", { class: "profile-auto-icon", "aria-hidden": "true" }, triggerNode(ui, auto.trigger)),
+      h("span", { class: "profile-auto-name", text: autoName(auto) }),
+      h("span", { class: "profile-auto-chip" }, statusChipNode(h, ui, store, auto.status)),
+      h("span", { class: "profile-auto-meta" },
+        cadence ? h("span", { class: "profile-auto-when", text: cadence }) : null,
+        h("span", { class: "profile-auto-last" },
+          h("span", { class: "profile-auto-sr", text: "Last run " }),
+          lastRunText(store, auto, now)
+        )
+      )
+    )
+  );
+}
+
+function statusToken(status) {
+  return typeof status === "string" && /^[a-z0-9_-]+$/i.test(status) ? status : "";
+}
+
+function autoName(auto) {
+  const name = auto && typeof auto.name === "string" ? auto.name.trim() : "";
+  return name || "Untitled automation";
+}
+
+function cadenceText(auto) {
+  if (!auto) return "";
+  const schedule = typeof auto.schedule === "string" ? auto.schedule.trim() : "";
+  if (schedule) return schedule;
+  const event = typeof auto.event === "string" ? auto.event.trim() : "";
+  if (event) return event;
+  if (auto.trigger === "manual") return "Manual";
+  return "";
+}
+
+function lastRunText(store, auto, now) {
+  if (!auto || !auto.lastRunAt || typeof store.relTime !== "function") return "Never";
+  try {
+    const text = store.relTime(auto.lastRunAt, now);
+    return text ? String(text) : "-";
+  } catch {
+    return "-";
+  }
+}
+
+function statusChipNode(h, ui, store, status) {
+  if (ui && typeof ui.autoStatusChip === "function") {
+    try {
+      const node = ui.autoStatusChip(status);
+      if (node && node.nodeType === 1) return node;
+    } catch {
+      /* plain chip below */
+    }
+  }
+  const labels = (store && store.AUTOMATION_STATUS_LABEL) || {};
+  const token = statusToken(status);
+  const known = token && typeof labels[token] === "string" ? labels[token] : "";
+  const label = known || (status ? String(status) : "Unknown");
+  return h("span", { class: token ? `chip chip-auto chip-auto-${token}` : "chip", text: label });
+}
+
+function triggerNode(ui, trigger) {
+  if (ui && typeof ui.triggerIcon === "function") {
+    try {
+      const node = ui.triggerIcon(trigger);
+      if (node && node.nodeType === 1) return node;
+    } catch {
+      /* icon fallback below */
+    }
+  }
+  const name = trigger === "event" ? "zap" : trigger === "manual" ? "play" : "clock";
+  return ui.icon(name, { size: 16 });
 }
 
 function jobsForMember(store, id) {

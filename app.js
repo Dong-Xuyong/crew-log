@@ -1,8 +1,8 @@
 import * as store from "./store.js";
 import * as ui from "./ui.js";
 
-const VIEWS = ["board", "list", "members", "profile", "org", "calendar", "dashboard"];
-const VIEW_FILES = new Set(["board", "list", "members", "profile", "org", "calendar", "dashboard", "detail"]);
+const VIEWS = ["board", "list", "members", "automations", "profile", "org", "calendar", "dashboard"];
+const VIEW_FILES = new Set(["board", "list", "members", "automations", "profile", "org", "calendar", "dashboard", "detail"]);
 const FILTER_KEYS = ["q", "member", "status", "division", "priority", "tag", "from", "to"];
 const COUNT_KEYS = ["member", "status", "division", "priority", "tag", "from", "to"];
 const SYNC_KINDS = ["topbar-sync-demo", "topbar-sync-ok", "topbar-sync-off", "topbar-sync-busy"];
@@ -10,6 +10,7 @@ const VIEW_LABEL = {
   board: "Board",
   list: "List",
   members: "Members",
+  automations: "Automations",
   profile: "Profile",
   org: "Org chart",
   calendar: "Calendar",
@@ -110,11 +111,24 @@ function makeCtx(query) {
   } catch {
     jobs = [];
   }
+  let automations = [];
+  try {
+    const list = store.filterAutomations({
+      q: filters.q || "",
+      member: filters.member || "",
+      division: filters.division || "",
+      status: query.get("astatus") || "",
+    });
+    automations = Array.isArray(list) ? list : [];
+  } catch {
+    automations = [];
+  }
   return {
     store,
     ui,
     params: new URLSearchParams(query.toString()),
     jobs,
+    automations,
     now: new Date(),
     go,
     openJob(id) {

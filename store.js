@@ -23,6 +23,18 @@ export const ACTION_LABEL = {
   done: "Done",
   comment: "Comment",
 };
+export const AUTOMATION_STATUSES = ["active", "failing", "paused", "draft"];
+export const AUTOMATION_STATUS_LABEL = {
+  active: "Active",
+  failing: "Failing",
+  paused: "Paused",
+  draft: "Draft",
+};
+export const TRIGGER_LABEL = {
+  schedule: "Schedule",
+  event: "Event",
+  manual: "Manual",
+};
 
 const CACHE_KEY = "crew-log-cache";
 const TOKEN_KEY = "dong-gh-sync";
@@ -126,36 +138,51 @@ function normalizeJob(job) {
   };
 }
 
+function normalizeAutomation(auto) {
+  return {
+    ...auto,
+    runs: recordList(auto.runs),
+  };
+}
+
 function normalize(data) {
   const src = isRecord(data) ? { ...data } : {};
   src.divisions = recordList(src.divisions);
   src.members = recordList(src.members);
   src.jobs = recordList(src.jobs).map(normalizeJob);
+  src.automations = recordList(src.automations).map(normalizeAutomation);
   return src;
 }
 
-function logCount(job) {
-  return job && Array.isArray(job.log) ? job.log.length : 0;
+function listCount(item, key) {
+  return item && Array.isArray(item[key]) ? item[key].length : 0;
 }
 
-function diffJobIds(prev, next) {
+function diffListIds(prevList, nextList, countKey) {
   const changed = new Set();
   const previous = new Map();
-  const prevJobs = prev && Array.isArray(prev.jobs) ? prev.jobs : [];
-  for (let i = 0; i < prevJobs.length; i += 1) {
-    const job = prevJobs[i];
-    if (job && job.id != null) previous.set(String(job.id), job);
+  const prevItems = Array.isArray(prevList) ? prevList : [];
+  for (let i = 0; i < prevItems.length; i += 1) {
+    const item = prevItems[i];
+    if (item && item.id != null) previous.set(String(item.id), item);
   }
-  const nextJobs = next && Array.isArray(next.jobs) ? next.jobs : [];
-  for (let i = 0; i < nextJobs.length; i += 1) {
-    const job = nextJobs[i];
-    if (!job || job.id == null) continue;
-    const id = String(job.id);
+  const nextItems = Array.isArray(nextList) ? nextList : [];
+  for (let i = 0; i < nextItems.length; i += 1) {
+    const item = nextItems[i];
+    if (!item || item.id == null) continue;
+    const id = String(item.id);
     const old = previous.get(id);
-    if (!old || old.updatedAt !== job.updatedAt || logCount(old) !== logCount(job)) {
+    if (!old || old.updatedAt !== item.updatedAt || listCount(old, countKey) !== listCount(item, countKey)) {
       changed.add(id);
     }
   }
+  return changed;
+}
+
+function diffJobIds(prev, next) {
+  const changed = diffListIds(prev && prev.jobs, next && next.jobs, "log");
+  const autoChanged = diffListIds(prev && prev.automations, next && next.automations, "runs");
+  autoChanged.forEach((id) => changed.add(id));
   return changed;
 }
 
@@ -290,6 +317,58 @@ function jobTextHit(job, q) {
   return false;
 }
 
+function dataAutomations() {
+  return state.data && Array.isArray(state.data.automations) ? state.data.automations : [];
+}
+
+function statusRank(status) {
+  const index = AUTOMATION_STATUSES.indexOf(status);
+  return index === -1 ? AUTOMATION_STATUSES.length : index;
+}
+
+function byStatusThenName(a, b) {
+  const rank = statusRank(a && a.status) - statusRank(b && b.status);
+  if (rank !== 0) return rank;
+  return textOf(a && a.name).localeCompare(textOf(b && b.name));
+}
+
+function memberOrderMap() {
+  const order = new Map();
+  const list = members();
+  for (let i = 0; i < list.length; i += 1) {
+    const person = list[i];
+    if (person && person.id != null && !order.has(person.id)) order.set(person.id, i);
+  }
+  return order;
+}
+
+function compareByMemberThenStatus(order) {
+  return function compare(a, b) {
+    const aKnown = !!(a && order.has(a.memberId));
+    const bKnown = !!(b && order.has(b.memberId));
+    const ai = aKnown ? order.get(a.memberId) : Number.MAX_SAFE_INTEGER;
+    const bi = bKnown ? order.get(b.memberId) : Number.MAX_SAFE_INTEGER;
+    if (ai !== bi) return ai - bi;
+    if (!aKnown || !bKnown) {
+      const memberRank = textOf(a && a.memberId).localeCompare(textOf(b && b.memberId));
+      if (memberRank !== 0) return memberRank;
+    }
+    return byStatusThenName(a, b);
+  };
+}
+
+function automationTextHit(auto, q) {
+  const chunks = [auto.name, auto.action, auto.schedule, auto.event, auto.channel];
+  const runs = auto.runs || [];
+  for (let i = 0; i < runs.length; i += 1) {
+    if (runs[i] && runs[i].text) chunks.push(runs[i].text);
+  }
+  for (let i = 0; i < chunks.length; i += 1) {
+    if (String(chunks[i] || "").toLowerCase().includes(q)) return true;
+  }
+  return false;
+}
+
 function assigned(job, id) {
   if (!job || !id) return false;
   if (job.lead === id) return true;
@@ -317,11 +396,14 @@ async function loadDemo() {
     }
   }
   let demoJobs = [];
+  let demoAutomations = [];
   try {
     const mod = await import("./demo.js");
     if (mod && Array.isArray(mod.DEMO_JOBS)) demoJobs = mod.DEMO_JOBS;
+    demoAutomations = (mod && mod.DEMO_AUTOMATIONS) || [];
   } catch (err) {
     demoJobs = [];
+    demoAutomations = [];
   }
   setData(
     {
@@ -329,6 +411,7 @@ async function loadDemo() {
       divisions: Array.isArray(seed.divisions) ? seed.divisions : [],
       members: Array.isArray(seed.members) ? seed.members : [],
       jobs: demoJobs,
+      automations: demoAutomations,
     },
     { demo: true },
   );
@@ -625,6 +708,80 @@ export function blockedJobs() {
 
 export function overdueJobs(now = new Date()) {
   return dataJobs().filter((job) => isOverdue(job, now)).sort(byUpdatedDesc);
+}
+
+export function automations() {
+  return dataAutomations();
+}
+
+export function automationById(id) {
+  return dataAutomations().find((auto) => auto && auto.id === id);
+}
+
+export function automationsFor(memberId) {
+  if (memberId == null || memberId === "") return [];
+  return dataAutomations()
+    .filter((auto) => auto && auto.memberId === memberId)
+    .sort(byStatusThenName);
+}
+
+export function filterAutomations(f) {
+  const filters = f || {};
+  const q = textOf(filters.q).toLowerCase();
+  const memberId = textOf(filters.member);
+  const divisionId = textOf(filters.division);
+  const status = textOf(filters.status);
+  const matched = dataAutomations().filter((auto) => {
+    if (!auto) return false;
+    if (memberId && auto.memberId !== memberId) return false;
+    if (status && auto.status !== status) return false;
+    if (divisionId) {
+      const person = member(auto.memberId);
+      if (!person || person.division !== divisionId) return false;
+    }
+    if (q && !automationTextHit(auto, q)) return false;
+    return true;
+  });
+  return matched.sort(compareByMemberThenStatus(memberOrderMap()));
+}
+
+export function automationRuns(auto) {
+  const runs = auto && Array.isArray(auto.runs) ? auto.runs.slice() : [];
+  runs.sort((a, b) => String((b && b.at) || "").localeCompare(String((a && a.at) || "")));
+  return runs;
+}
+
+export function automationStats(now = new Date()) {
+  const moment = parseInstant(now) || new Date();
+  const t = moment.getTime();
+  const list = dataAutomations();
+  const byStatus = { active: 0, failing: 0, paused: 0, draft: 0 };
+  const failing = [];
+  const upcoming = [];
+  for (let i = 0; i < list.length; i += 1) {
+    const auto = list[i];
+    if (!auto) continue;
+    if (Object.prototype.hasOwnProperty.call(byStatus, auto.status)) byStatus[auto.status] += 1;
+    if (auto.status === "failing") failing.push(auto);
+    if (auto.status !== "active") continue;
+    const next = parseInstant(auto.nextRunAt);
+    if (next && next.getTime() >= t) upcoming.push(auto);
+  }
+  const order = memberOrderMap();
+  const byMember = compareByMemberThenStatus(order);
+  failing.sort(byMember);
+  upcoming.sort((a, b) => {
+    const left = parseInstant(a.nextRunAt).getTime();
+    const right = parseInstant(b.nextRunAt).getTime();
+    if (left !== right) return left - right;
+    return byMember(a, b);
+  });
+  return {
+    total: list.length,
+    byStatus,
+    failing,
+    upcoming: upcoming.slice(0, 5),
+  };
 }
 
 export function lisbonDate(iso) {

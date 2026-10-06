@@ -69,6 +69,7 @@ function memberCard(h, ui, store, member, now, openMember) {
   const stats = store.memberStats(member.id, now) || {};
   const open = num(stats.open);
   const done7 = num(stats.done7);
+  const autos = automationFoot(store, member.id);
   const paused = member.status === "paused";
   const oneJob = String(member.oneJob || "").trim();
   return h("button", {
@@ -96,7 +97,8 @@ function memberCard(h, ui, store, member, now, openMember) {
       reportsTo(h, ui, store, member),
       h("div", { class: "mcard-stats" },
         stat(h, open, "Open"),
-        stat(h, done7, "Done 7d")
+        stat(h, done7, "Done 7d"),
+        autoStat(h, autos)
       )
     )
   );
@@ -126,5 +128,39 @@ function stat(h, value, label) {
   return h("span", { class: "mcard-stat" },
     h("span", { class: "mcard-stat-num", text: String(value) }),
     h("span", { class: "mcard-stat-label", text: label })
+  );
+}
+
+function automationFoot(store, id) {
+  const empty = { count: 0, failing: 0 };
+  if (!id || typeof store.automationsFor !== "function") return empty;
+  try {
+    const list = store.automationsFor(id);
+    if (!Array.isArray(list)) return empty;
+    let failing = 0;
+    for (const auto of list) {
+      if (auto && auto.status === "failing") failing += 1;
+    }
+    return { count: list.length, failing };
+  } catch {
+    return empty;
+  }
+}
+
+function autoStat(h, foot) {
+  const count = num(foot && foot.count);
+  const failing = num(foot && foot.failing);
+  const failingText = failing === 1 ? "1 failing" : `${failing} failing`;
+  return h("span", { class: "mcard-stat mcard-auto" },
+    h("span", { class: "mcard-stat-num mcard-auto-num" },
+      String(count),
+      failing > 0 ? h("span", {
+        class: "mcard-auto-dot",
+        title: failingText,
+        "aria-hidden": "true"
+      }) : null
+    ),
+    h("span", { class: "mcard-stat-label", text: "Automations" }),
+    failing > 0 ? h("span", { class: "mcard-auto-sr", text: failingText }) : null
   );
 }
