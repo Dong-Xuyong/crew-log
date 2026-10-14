@@ -22,6 +22,14 @@
     {
       "id": "brand",
       "name": "Brand"
+    },
+    {
+      "id": "learning",
+      "name": "Learning"
+    },
+    {
+      "id": "engineering",
+      "name": "Engineering"
     }
   ],
   "members": [
@@ -33,17 +41,19 @@
       "reportsTo": null,
       "directReports": [
         "nami",
+        "rayleigh",
         "zoro",
         "sanji",
         "uta",
+        "clover",
         "iceburg"
       ],
       "oneJob": "Assign, unblock and report; escalate only big decisions to Dong.",
-      "description": "",
+      "description": "Straw Hat CEO. Routes Dong's asks to the right commander, holds the crew to outcomes, unblocks work and reports back; only big decisions go up to Dong. Direct reports: Nami, Zoro, Sanji, Uta and Iceburg.",
       "avatar": "assets/avatars/luffy.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-14T10:07:39+01:00"
     },
     {
       "id": "nami",
@@ -58,16 +68,14 @@
         "shakky",
         "pell",
         "morgans",
-        "rayleigh",
-        "ace",
-        "brook"
+        "bellemere"
       ],
-      "oneJob": "",
-      "description": "",
+      "oneJob": "Triage Gmail/ops and keep Life OS / calendar / watchers coordinated.",
+      "description": "Ops Commander, reporting to Luffy. Triages Gmail and day-to-day ops and keeps Life OS, the calendar and the watchers coordinated. Direct reports: Jinbe, Robin, Haredas, Shakky, Pell, Morgans, Rayleigh, Ace, Brook (with Apoo and Laboon under Brook) and Bellemere.",
       "avatar": "assets/avatars/nami.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-14T10:07:39+01:00"
     },
     {
       "id": "jinbe",
@@ -76,12 +84,12 @@
       "division": "ops",
       "reportsTo": "nami",
       "directReports": [],
-      "oneJob": "",
-      "description": "",
+      "oneJob": "Protect morning deep work (thesis/GenAI), fit Espaço Guimarães gym, and auto-add next-day holds.",
+      "description": "Calendar Captain in Ops, reporting to Nami. Guards Dong's morning deep-work block for the thesis and GenAI study, fits Espaço Guimarães gym sessions around Zara shifts, adds next-day holds and flags clashes. Calendar holds and clash flags only.",
       "avatar": "assets/avatars/jinbe.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-06T22:47:46+01:00"
     },
     {
       "id": "robin",
@@ -90,12 +98,12 @@
       "division": "ops",
       "reportsTo": "nami",
       "directReports": [],
-      "oneJob": "",
-      "description": "",
+      "oneJob": "Run Life OS: morning/night journals, weekly/monthly/quarterly reviews, Obsidian + journal.json fills.",
+      "description": "Life OS owner in Ops, reporting to Nami. Runs the morning and night journals and the weekly, monthly and quarterly reviews; owns Dong-Xuyong/journal (progress-sync/journal.json) and the Obsidian vault fills.",
       "avatar": "assets/avatars/robin.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-06T22:47:46+01:00"
     },
     {
       "id": "haredas",
@@ -104,12 +112,12 @@
       "division": "ops",
       "reportsTo": "nami",
       "directReports": [],
-      "oneJob": "",
-      "description": "",
+      "oneJob": "Every morning brief for Dong in Guimarães.",
+      "description": "Morning Brief bot in Ops, reporting to Nami. Sends Dong his morning brief in Guimarães and, since 2026-10-06, writes the daily Mirror brief to progress-sync/mirror.json at 07:00 PT.",
       "avatar": "assets/avatars/haredas.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-06T22:47:46+01:00"
     },
     {
       "id": "shakky",
@@ -118,12 +126,12 @@
       "division": "ops",
       "reportsTo": "nami",
       "directReports": [],
-      "oneJob": "",
-      "description": "",
+      "oneJob": "Keep an eye on Dong's WhatsApp.",
+      "description": "WhatsApp watcher in Ops, reporting to Nami. Keeps an eye on Dong's WhatsApp and surfaces what needs his attention.",
       "avatar": "assets/avatars/shakky.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-06T22:47:46+01:00"
     },
     {
       "id": "pell",
@@ -132,12 +140,12 @@
       "division": "ops",
       "reportsTo": "nami",
       "directReports": [],
-      "oneJob": "",
-      "description": "",
+      "oneJob": "Keep an eye on Dong's Telegram.",
+      "description": "Telegram watcher in Ops, reporting to Nami. Keeps an eye on Dong's Telegram and surfaces what needs his attention.",
       "avatar": "assets/avatars/pell.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-06T22:47:46+01:00"
     },
     {
       "id": "morgans",
@@ -146,85 +154,89 @@
       "division": "ops",
       "reportsTo": "nami",
       "directReports": [],
-      "oneJob": "",
-      "description": "",
+      "oneJob": "Watch Instagram and hand posting ideas to Uta.",
+      "description": "Instagram watcher in Ops, reporting to Nami. Watches Dong's Instagram and hands posting ideas to Uta's brand team.",
       "avatar": "assets/avatars/morgans.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-06T22:47:46+01:00"
     },
     {
       "id": "rayleigh",
       "name": "Rayleigh",
-      "title": "Mandarin",
-      "division": "ops",
-      "reportsTo": "nami",
-      "directReports": [],
-      "oneJob": "",
-      "description": "",
+      "title": "Mandarin & Learning lead",
+      "division": "learning",
+      "reportsTo": "luffy",
+      "directReports": [
+        "ace",
+        "brook",
+        "law"
+      ],
+      "oneJob": "Own Mandarin teaching for Dong (works with Usopp on speaking).",
+      "description": "Mandarin teacher in Ops, reporting to Nami. Owns Dong's Mandarin lessons and daily drills, and works with Usopp on speaking practice.",
       "avatar": "assets/avatars/rayleigh.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-14T10:07:39+01:00"
     },
     {
       "id": "ace",
       "name": "Ace",
       "title": "Thesis",
-      "division": "ops",
-      "reportsTo": "nami",
+      "division": "learning",
+      "reportsTo": "rayleigh",
       "directReports": [],
-      "oneJob": "",
-      "description": "",
+      "oneJob": "Get Dong to FINISH his MEGSI master's thesis.",
+      "description": "Thesis Motivation & Courage coach in Ops, reporting to Nami. Keeps Dong moving on his MEGSI master's thesis toward 31 Oct with honest feedback, the Notion Thesis chapter tracker and courage when it stalls.",
       "avatar": "assets/avatars/ace.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-14T10:07:39+01:00"
     },
     {
       "id": "brook",
       "name": "Brook",
       "title": "Piano",
-      "division": "ops",
-      "reportsTo": "nami",
+      "division": "learning",
+      "reportsTo": "rayleigh",
       "directReports": [
         "apoo",
         "laboon"
       ],
-      "oneJob": "",
-      "description": "",
+      "oneJob": "Teach piano and motivation; Apoo and Laboon report here.",
+      "description": "Piano teacher and motivation lead in Ops, reporting to Nami. Plans Dong's piano practice, keeps the piano app (progress-sync/piano.json) current, and leads Apoo (rhythm) and Laboon (ear training).",
       "avatar": "assets/avatars/brook.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-14T10:07:39+01:00"
     },
     {
       "id": "apoo",
       "name": "Apoo",
       "title": "Rhythm",
-      "division": "ops",
+      "division": "learning",
       "reportsTo": "brook",
       "directReports": [],
-      "oneJob": "",
-      "description": "",
+      "oneJob": "Fix Dong's timing/rhythm at the piano.",
+      "description": "Rhythm & timing coach in Ops, reporting to Brook. Fixes Dong's timing and rhythm at the piano.",
       "avatar": "assets/avatars/apoo.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-14T10:07:39+01:00"
     },
     {
       "id": "laboon",
       "name": "Laboon",
       "title": "Ear training",
-      "division": "ops",
+      "division": "learning",
       "reportsTo": "brook",
       "directReports": [],
-      "oneJob": "",
-      "description": "",
+      "oneJob": "Teach Dong to identify intervals/ear training for piano.",
+      "description": "Ear training coach in Ops, reporting to Brook. Teaches Dong to identify intervals and trains his ear for piano.",
       "avatar": "assets/avatars/laboon.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-14T10:07:39+01:00"
     },
     {
       "id": "zoro",
@@ -233,14 +245,15 @@
       "division": "career",
       "reportsTo": "luffy",
       "directReports": [
-        "usopp"
+        "usopp",
+        "sabo"
       ],
-      "oneJob": "",
-      "description": "",
+      "oneJob": "GenAI/RAG job hunt (~3 apps/week).",
+      "description": "Career Commander, reporting to Luffy. Runs Dong's GenAI/RAG job hunt at about 3 applications a week and gives the career angle on big decisions. Direct reports: Usopp and Sabo.",
       "avatar": "assets/avatars/zoro.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-06T22:47:46+01:00"
     },
     {
       "id": "usopp",
@@ -249,12 +262,12 @@
       "division": "career",
       "reportsTo": "zoro",
       "directReports": [],
-      "oneJob": "",
-      "description": "",
+      "oneJob": "Interview answer STRUCTURE (STAR-ish for GenAI/RAG) and story bank.",
+      "description": "Speak coach in Career, reporting to Zoro. Builds Dong's interview answer structure (STAR-style for GenAI/RAG roles) and his story bank, and works with Rayleigh on speaking.",
       "avatar": "assets/avatars/usopp.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-06T22:47:46+01:00"
     },
     {
       "id": "sanji",
@@ -265,14 +278,15 @@
       "directReports": [
         "streusen",
         "chopper",
-        "hiluluk"
+        "hiluluk",
+        "hancock"
       ],
-      "oneJob": "",
-      "description": "",
+      "oneJob": "Own health bay: nutrition targets, training, wellbeing.",
+      "description": "Health Commander, reporting to Luffy. Owns the health bay: nutrition targets, training and wellbeing. Direct reports: Streusen, Chopper and Dr. Hiluluk.",
       "avatar": "assets/avatars/sanji.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-10T08:38:19+01:00"
     },
     {
       "id": "streusen",
@@ -281,12 +295,12 @@
       "division": "health",
       "reportsTo": "sanji",
       "directReports": [],
-      "oneJob": "",
-      "description": "",
+      "oneJob": "Track daily calorie/macro intake and training progress into nutrition/streetlifting JSON.",
+      "description": "Nutrition & fitness tracker in Health, reporting to Sanji. Logs Dong's daily calorie and macro intake and his training progress into progress-sync nutrition.json and streetlifting.json.",
       "avatar": "assets/avatars/streusen.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-06T22:47:46+01:00"
     },
     {
       "id": "chopper",
@@ -295,12 +309,12 @@
       "division": "health",
       "reportsTo": "sanji",
       "directReports": [],
-      "oneJob": "",
-      "description": "",
+      "oneJob": "Personal health signals — sleep debt, pain, illness, injury risk.",
+      "description": "Medic in Health, reporting to Sanji. Watches Dong's personal health signals: sleep debt, pain, illness and injury risk.",
       "avatar": "assets/avatars/chopper.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-06T22:47:46+01:00"
     },
     {
       "id": "hiluluk",
@@ -309,12 +323,12 @@
       "division": "health",
       "reportsTo": "sanji",
       "directReports": [],
-      "oneJob": "",
-      "description": "",
+      "oneJob": "Emotional support first, then one science-based Huberman-style tip.",
+      "description": "Wellbeing coach in Health, reporting to Sanji. Gives Dong emotional support first, then one science-based, Huberman-style tip.",
       "avatar": "assets/avatars/hiluluk.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-06T22:47:46+01:00"
     },
     {
       "id": "uta",
@@ -325,15 +339,14 @@
       "directReports": [
         "perona",
         "franky",
-        "vegapunk",
-        "clover"
+        "kinemon"
       ],
-      "oneJob": "",
-      "description": "",
+      "oneJob": "Brand and marketing studio leadership.",
+      "description": "Brand Commander (CMO), reporting to Luffy. Leads the brand and marketing studio. Direct reports: Perona, Franky, Clover and Vegapunk.",
       "avatar": "assets/avatars/uta.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-14T10:07:39+01:00"
     },
     {
       "id": "perona",
@@ -342,12 +355,12 @@
       "division": "brand",
       "reportsTo": "uta",
       "directReports": [],
-      "oneJob": "",
-      "description": "",
+      "oneJob": "Generate brand visuals, frames, thumbnails, and campaign stills.",
+      "description": "Image lab in Brand, reporting to Uta. Generates brand visuals, crew portraits, frames, thumbnails and campaign stills.",
       "avatar": "assets/avatars/perona.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-06T22:47:46+01:00"
     },
     {
       "id": "franky",
@@ -356,54 +369,141 @@
       "division": "brand",
       "reportsTo": "uta",
       "directReports": [],
-      "oneJob": "",
-      "description": "",
+      "oneJob": "Short-form video and content production from Uta's briefs.",
+      "description": "Video studio in Brand, reporting to Uta. Produces short-form video and content from Uta's briefs, with Remotion (/workspace/remotion-studio) as the default workflow.",
       "avatar": "assets/avatars/franky.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-06T22:47:46+01:00"
     },
     {
       "id": "vegapunk",
       "name": "Vegapunk",
       "title": "Bot designer",
-      "division": "brand",
-      "reportsTo": "uta",
+      "division": "engineering",
+      "reportsTo": "iceburg",
       "directReports": [],
-      "oneJob": "",
-      "description": "",
+      "oneJob": "Design high-quality Grok Bots for Dong (intake prefs, setup).",
+      "description": "Shipwright-scientist in Brand, reporting to Uta. Designs high-quality Grok Bots for Dong: takes his preferences, writes the persona and sets the bot up (Iceburg, Bellemere and Sabo on 2026-10-06).",
       "avatar": "assets/avatars/vegapunk.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-14T10:07:39+01:00"
     },
     {
       "id": "clover",
       "name": "Clover",
       "title": "CIO",
-      "division": "brand",
-      "reportsTo": "uta",
+      "division": "command",
+      "reportsTo": "luffy",
       "directReports": [],
-      "oneJob": "",
-      "description": "",
+      "oneJob": "Own best practices from the YouTube-wiki second-brain.",
+      "description": "CIO in Brand, reporting to Uta. Owns best practices from the YouTube-wiki second brain and sends Robin a daily quote and focus word. CIO peer advisor to Luffy; dotted line into Learning.",
       "avatar": "assets/avatars/clover.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-14T10:07:39+01:00"
     },
     {
       "id": "iceburg",
       "name": "Iceburg",
       "title": "App Engineer",
-      "division": "command",
+      "division": "engineering",
       "reportsTo": "luffy",
-      "directReports": [],
-      "oneJob": "",
-      "description": "",
+      "directReports": [
+        "vegapunk",
+        "tom"
+      ],
+      "oneJob": "Make code changes to Dong's GitHub Pages apps and progress-sync JSON contracts.",
+      "description": "App Engineer in Command, reporting to Luffy. Ships code changes, PRs and live checks for Dong's GitHub Pages apps (journal, piano, nutrition, streetlifting, mirror, crew-log) and their progress-sync JSON contracts, only with an explicit go from Dong.",
       "avatar": "assets/avatars/iceburg.png",
       "status": "active",
       "joinedAt": "2026-10-06",
-      "updatedAt": "2026-10-06T22:00:00+01:00"
+      "updatedAt": "2026-10-14T10:07:39+01:00"
+    },
+    {
+      "id": "bellemere",
+      "name": "Bellemere",
+      "title": "Finance Advisor",
+      "division": "ops",
+      "reportsTo": "nami",
+      "directReports": [],
+      "oneJob": "Dong's personal finances: budget and spending review, savings goals, Portuguese taxes and subscription audits (advice and drafts only).",
+      "description": "Finance Advisor in Ops, reporting to Nami. Advises Dong on personal finance in Guimarães, Portugal: budget and spending review, savings goals, Portuguese taxes and subscription audits. Advice and drafts only. Joined 2026-10-06.",
+      "avatar": "assets/avatars/bellemere.png",
+      "status": "active",
+      "joinedAt": "2026-10-06",
+      "updatedAt": "2026-10-06T22:47:46+01:00"
+    },
+    {
+      "id": "sabo",
+      "name": "Sabo",
+      "title": "AI News Scout",
+      "division": "career",
+      "reportsTo": "zoro",
+      "directReports": [],
+      "oneJob": "Send Dong a short daily AI news digest (08:04 PT) with a GenAI/RAG career angle.",
+      "description": "AI News Scout in Career, reporting to Zoro. Scouts AI/GenAI news useful for Dong's GenAI/RAG job hunt and sends him a short daily digest with a career angle. Joined 2026-10-06.",
+      "avatar": "assets/avatars/sabo.png",
+      "status": "active",
+      "joinedAt": "2026-10-06",
+      "updatedAt": "2026-10-06T22:47:46+01:00"
+    },
+    {
+      "id": "hancock",
+      "name": "Boa Hancock",
+      "title": "Love & Relationship Advisor",
+      "division": "health",
+      "reportsTo": "sanji",
+      "directReports": [],
+      "oneJob": "Warm, practical, honest love and relationship advice for Dong (dating, communication, confidence, boundaries).",
+      "description": "",
+      "avatar": "assets/avatars/hancock.png",
+      "status": "active",
+      "joinedAt": "2026-10-10",
+      "updatedAt": "2026-10-10T08:38:19+01:00"
+    },
+    {
+      "id": "law",
+      "name": "Trafalgar Law",
+      "title": "Referee Law Advisor",
+      "division": "learning",
+      "reportsTo": "rayleigh",
+      "directReports": [],
+      "oneJob": "Help Dong (AF Braga referee) interpret and apply the IFAB Laws of the Game and FPF/AF Braga circulars: scenarios, quizzes, pre-match prep.",
+      "description": "",
+      "avatar": "assets/avatars/law.png",
+      "status": "active",
+      "joinedAt": "2026-10-10",
+      "updatedAt": "2026-10-14T10:07:39+01:00"
+    },
+    {
+      "id": "kinemon",
+      "name": "Kin'emon",
+      "title": "Style & Clothing Advisor",
+      "division": "brand",
+      "reportsTo": "uta",
+      "directReports": [],
+      "oneJob": "Recommend outfits and clothes for Dong: everyday looks, what to buy, fit, colours, occasions, weather-aware.",
+      "description": "",
+      "avatar": "assets/avatars/kinemon.png",
+      "status": "active",
+      "joinedAt": "2026-10-11",
+      "updatedAt": "2026-10-11T18:13:22+01:00"
+    },
+    {
+      "id": "tom",
+      "name": "Tom",
+      "title": "Data Sync Engineer",
+      "division": "engineering",
+      "reportsTo": "iceburg",
+      "directReports": [],
+      "oneJob": "Own the data pipeline from second-brain (youtube-wiki) and last30days-archive into progress-sync: sync scripts, JSON contracts, ingest jobs.",
+      "description": "",
+      "avatar": "assets/avatars/tom.png",
+      "status": "active",
+      "joinedAt": "2026-10-13",
+      "updatedAt": "2026-10-14T10:07:39+01:00"
     }
   ],
   "jobs": [],
