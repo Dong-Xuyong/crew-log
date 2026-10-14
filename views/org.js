@@ -75,7 +75,7 @@ function buildNode(store, member, depth, seen) {
 }
 
 function childListClass(depth, count) {
-  if (depth === 0 && count <= 6) return "org-children";
+  if (depth === 0) return "org-children";
   if (count > 4) return "org-stack org-stack-grid";
   return "org-stack";
 }
