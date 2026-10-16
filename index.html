@@ -9,29 +9,28 @@
   <title>Crew Log</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='23' rx='13' ry='4.2' fill='%23eab308'/%3E%3Cpath d='M10 22c.5-8 2.8-13 6-13s5.5 5 6 13' fill='%23f8e08e'/%3E%3Crect x='8' y='19.2' width='16' height='2.6' rx='1.2' fill='%23dc2626'/%3E%3C/svg%3E" />
   <script src="dong-ui/theme.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="dong-ui/theme.css" />
+  <link rel="stylesheet" href="/ui/shell.css?v=1" />
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
+<body class="dx">
   <a class="app-skip" href="#main">Skip to content</a>
   <div class="app-shell" id="app">
-    <header class="topbar dong-topbar nav-glass">
-      <a class="dong-home-link" href="https://dong-xuyong.github.io/" aria-label="Back to all apps" title="All apps"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg></a>
-      <div class="topbar-brand">
-        <svg class="topbar-mark" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true">
-          <ellipse cx="16" cy="22.6" rx="13" ry="4.2" fill="#eab308"/>
-          <path d="M10 21.6C10.6 13.4 12.8 8 16 8s5.4 5.4 6 13.6" fill="#f8e08e"/>
-          <rect x="8.2" y="19.2" width="15.6" height="2.5" rx="1.2" fill="#dc2626"/>
-        </svg>
-        <div class="topbar-titles">
-          <h1 class="topbar-name">Crew Log</h1>
-          <p id="sync-label" class="topbar-sync topbar-sync-busy" role="status" title="Syncing…">
-            <span class="topbar-dot" aria-hidden="true"></span>
-            <span id="sync-text">Syncing…</span>
-          </p>
-        </div>
+    <header class="dx-header topbar" id="topbar">
+      <a class="dx-home" href="/" aria-label="Home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+      </a>
+      <div class="dx-heading">
+        <h1 class="dx-title">Crew Log</h1>
+        <p id="sync-label" class="topbar-sync topbar-sync-busy" role="status" title="Syncing…">
+          <span class="topbar-dot" aria-hidden="true"></span>
+          <span id="sync-text">Syncing…</span>
+        </p>
       </div>
-      <div class="topbar-actions">
+      <div class="dx-actions">
         <button type="button" id="refresh-btn" class="btn-icon" aria-label="Refresh" title="Refresh">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
         </button>
@@ -52,22 +51,22 @@
     </header>
 
     <div class="app-body" id="app-body">
-      <nav class="tabs" aria-label="Views">
+      <nav class="tabs dx-tabs" aria-label="Views">
         <div class="tabs-scroll" id="tabs-scroll">
           <div class="tabs-track" id="tabs-track">
             <span class="tabs-indicator" id="tabs-indicator" aria-hidden="true"></span>
-            <button type="button" class="tabs-btn" data-view="board">Board</button>
-            <button type="button" class="tabs-btn" data-view="list">List</button>
-            <button type="button" class="tabs-btn" data-view="members">Members</button>
-            <button type="button" class="tabs-btn" data-view="automations">Automations</button>
-            <button type="button" class="tabs-btn" data-view="org">Org</button>
-            <button type="button" class="tabs-btn" data-view="calendar">Calendar</button>
-            <button type="button" class="tabs-btn" data-view="dashboard">Dashboard</button>
+            <button type="button" class="tabs-btn dx-tab" data-view="board">Board</button>
+            <button type="button" class="tabs-btn dx-tab" data-view="list">List</button>
+            <button type="button" class="tabs-btn dx-tab" data-view="members">Members</button>
+            <button type="button" class="tabs-btn dx-tab" data-view="automations">Automations</button>
+            <button type="button" class="tabs-btn dx-tab" data-view="org">Org</button>
+            <button type="button" class="tabs-btn dx-tab" data-view="calendar">Calendar</button>
+            <button type="button" class="tabs-btn dx-tab" data-view="dashboard">Dashboard</button>
           </div>
         </div>
       </nav>
 
-      <div class="filters" role="search">
+      <div class="filters dx-card" role="search">
         <div class="filters-bar">
           <label class="filters-search">
             <span class="sr-only">Search jobs</span>
@@ -75,7 +74,7 @@
             <input id="search-input" type="search" placeholder="Search jobs" autocomplete="off" enterkeyhint="search" spellcheck="false" />
             <kbd class="filters-kbd" aria-hidden="true">/</kbd>
           </label>
-          <button type="button" id="filters-toggle" class="btn btn-ghost filters-toggle" aria-expanded="false" aria-controls="filters-panel">
+          <button type="button" id="filters-toggle" class="btn btn-ghost dx-btn dx-btn--ghost filters-toggle" aria-expanded="false" aria-controls="filters-panel">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18l-7 8v6l-4 2v-8L3 5z"/></svg>
             <span>Filters</span>
             <span id="filters-count" class="filters-count" hidden><span id="filters-count-num">0</span><span class="sr-only"> active</span></span>
@@ -111,14 +110,14 @@
             <input id="filter-to" type="date" autocomplete="off" />
           </label>
           <div class="filters-actions">
-            <button type="button" id="filters-clear" class="btn btn-ghost filters-clear" disabled>Clear</button>
+            <button type="button" id="filters-clear" class="btn btn-ghost dx-btn dx-btn--ghost filters-clear" disabled>Clear</button>
           </div>
         </div>
       </div>
 
-      <p id="demo-banner" class="banner" role="status" hidden>
+      <p id="demo-banner" class="banner dx-card" role="status" hidden>
         <span>EXAMPLE DATA - connect GitHub in Settings to see the real crew log</span>
-        <button type="button" id="banner-settings" class="btn btn-ghost">Settings</button>
+        <button type="button" id="banner-settings" class="btn btn-ghost dx-btn dx-btn--ghost">Settings</button>
       </p>
 
       <main id="main" class="app-main" tabindex="-1" aria-busy="true">
@@ -138,7 +137,7 @@
 
   <div id="drawer-root" class="drawer-root" hidden aria-hidden="true">
     <div id="drawer-backdrop" class="drawer-backdrop"></div>
-    <div id="drawer" class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" tabindex="-1">
+    <div id="drawer" class="drawer dx-card" role="dialog" aria-modal="true" aria-labelledby="drawer-title" tabindex="-1">
       <header class="drawer-bar">
         <div class="drawer-handle" aria-hidden="true"></div>
         <h2 id="drawer-title" class="drawer-heading">Job</h2>
@@ -152,7 +151,7 @@
 
   <div id="settings-modal" class="modal-root" hidden aria-hidden="true">
     <div id="modal-backdrop" class="modal-backdrop"></div>
-    <div id="settings-dialog" class="modal" role="dialog" aria-modal="true" aria-labelledby="settings-title" aria-describedby="settings-help" tabindex="-1">
+    <div id="settings-dialog" class="modal dx-card" role="dialog" aria-modal="true" aria-labelledby="settings-title" aria-describedby="settings-help" tabindex="-1">
       <div class="modal-head">
         <h2 id="settings-title">GitHub connection</h2>
         <button type="button" id="modal-close" class="btn-icon" aria-label="Close settings">
@@ -166,8 +165,8 @@
           <input id="token-input" type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" />
         </label>
         <div class="modal-actions">
-          <button type="submit" class="btn">Save token</button>
-          <button type="button" id="clear-token" class="btn btn-ghost">Clear token</button>
+          <button type="submit" class="btn dx-btn">Save token</button>
+          <button type="button" id="clear-token" class="btn btn-ghost dx-btn dx-btn--ghost">Clear token</button>
         </div>
       </form>
     </div>

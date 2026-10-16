@@ -161,9 +161,37 @@ function toast(message, kind) {
   window.setTimeout(() => item.remove(), 3800);
 }
 
+const DX_CARDS = [
+  ".card-job",
+  ".board-col",
+  ".list-mcard",
+  ".list-wrap",
+  ".list-toolbar",
+  ".mcard",
+  ".dash-panel",
+  ".dash-kpi",
+  ".profile-hero",
+  ".profile-stat",
+  ".profile-section",
+  ".org-node",
+  ".org-loose",
+  ".auto-card",
+  ".auto-member",
+  ".auto-head",
+  ".cal",
+  ".empty",
+  ".app-error",
+  ".topbar-menu",
+].join(",");
+
+function tagDxCards(root) {
+  if (!root || !root.querySelectorAll) return;
+  root.querySelectorAll(DX_CARDS).forEach((el) => el.classList.add("dx-card"));
+}
+
 function errorCard(message, titleText) {
   const card = document.createElement("div");
-  card.className = "app-error";
+  card.className = "app-error dx-card";
   card.setAttribute("role", "alert");
   const title = document.createElement("h2");
   title.className = "app-error-title";
@@ -173,7 +201,7 @@ function errorCard(message, titleText) {
   text.textContent = message;
   const button = document.createElement("button");
   button.type = "button";
-  button.className = "btn btn-ghost";
+  button.className = "btn btn-ghost dx-btn dx-btn--ghost";
   button.textContent = "Try again";
   button.addEventListener("click", () => render());
   card.append(title, text, button);
@@ -516,6 +544,7 @@ async function syncDrawer(jobId, ctx, gen) {
     body.replaceChildren(errorCard("This job could not be shown."));
   }
   if (gen !== generation) return;
+  tagDxCards(body);
   if (!opening && !switched) body.scrollTop = scroll;
 }
 
@@ -560,6 +589,7 @@ async function paint(gen) {
     section.replaceChildren(errorCard("This view could not be shown. The rest of Crew Log is still available."));
   }
   if (gen !== generation) return;
+  tagDxCards(section);
   main.replaceChildren(section);
   main.setAttribute("aria-busy", "false");
   if (paintedView && paintedView !== view) window.scrollTo(0, 0);
