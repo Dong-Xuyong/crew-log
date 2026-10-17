@@ -76,6 +76,9 @@ Each job object:
 - `log`: array of entries. Append only.
 - `subtasks`: array of `{ "id": "st_xxxx", "title": "...", "memberId": "<id>", "done": false }`.
 - `parentJobId`: another job id, or `null`.
+- `model` (optional): string naming the model(s) used, for example `claude-opus-5-5` or `grok-4.7`. Omit if unknown.
+- `agent_count` (optional): integer, how many agents worked the job. Omit if unknown.
+- `effort` (optional): string, for example `low`, `medium`, `high`. Omit if unknown.
 - `updatedAt`: ISO-8601. Set it whenever you change the job.
 
 Each log entry:
