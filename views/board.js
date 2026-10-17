@@ -133,6 +133,16 @@ function tagNodes(ui, job) {
   return nodes;
 }
 
+function costLine(ui, job) {
+  const model = typeof job.model === "string" ? job.model.trim() : "";
+  const n = Number.isInteger(job.agent_count) && job.agent_count > 0 ? job.agent_count : 0;
+  const effort = typeof job.effort === "string" ? job.effort.trim() : "";
+  const parts = [model, n ? `${n} ${n === 1 ? "agent" : "agents"}` : "", effort ? `${effort} effort` : ""].filter(Boolean);
+  if (!parts.length) return null;
+  const text = parts.join(" \u00b7 ");
+  return ui.h("span", { class: "card-cost", title: text }, text);
+}
+
 function card(ui, store, ctx, job, now) {
   const { date, title } = splitTitle(job.title);
   const dateText = date ? store.fmtDate(date) || date : "";
@@ -177,6 +187,7 @@ function card(ui, store, ctx, job, now) {
         )
       : null,
     chips.length ? ui.h("div", { class: "card-chips" }, ...chips) : null,
+    costLine(ui, job),
     ui.h(
       "div",
       { class: "card-foot" },

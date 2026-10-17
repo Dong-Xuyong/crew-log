@@ -1506,6 +1506,16 @@ html.dark .empty .icon {
   flex: 1;
 }
 
+.card-cost {
+  display: block;
+  margin-top: 6px;
+  color: var(--dx-text-2, var(--dx-text));
+  font-size: 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .card-chips {
   display: flex;
   flex-wrap: wrap;
