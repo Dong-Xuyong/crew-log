@@ -134,13 +134,7 @@ function tagNodes(ui, job) {
 }
 
 function costLine(ui, job) {
-  const model = typeof job.model === "string" ? job.model.trim() : "";
-  const n = Number.isInteger(job.agent_count) && job.agent_count > 0 ? job.agent_count : 0;
-  const effort = typeof job.effort === "string" ? job.effort.trim() : "";
-  const parts = [model, n ? `${n} ${n === 1 ? "agent" : "agents"}` : "", effort ? `${effort} effort` : ""].filter(Boolean);
-  if (!parts.length) return null;
-  const text = parts.join(" \u00b7 ");
-  return ui.h("span", { class: "card-cost", title: text }, text);
+  return ui.jobMeta(job);
 }
 
 function card(ui, store, ctx, job, now) {
@@ -157,7 +151,7 @@ function card(ui, store, ctx, job, now) {
   const fullTime = stampText ? store.fmtDateTime(stampText) : "";
   const rel = stampText ? store.relTime(stampText, now) : "";
   const div = leadDivision(job, store);
-  const chips = [duePill(ui, store, job, now), ...tagNodes(ui, job)].filter(Boolean);
+  const chips = [duePill(ui, store, job, now), ...tagNodes(ui, job), ui.usageChip(job && job.usage)].filter(Boolean);
   const props = {
     type: "button",
     class: cx("card-job", isChanged(store, job.id) && "flash"),

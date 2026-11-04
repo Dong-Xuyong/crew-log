@@ -1,8 +1,8 @@
 import * as store from "./store.js";
 import * as ui from "./ui.js";
 
-const VIEWS = ["board", "list", "members", "automations", "profile", "org", "calendar", "dashboard"];
-const VIEW_FILES = new Set(["board", "list", "members", "automations", "profile", "org", "calendar", "dashboard", "detail"]);
+const VIEWS = ["board", "list", "members", "automations", "profile", "org", "calendar", "dashboard", "usage"];
+const VIEW_FILES = new Set(["board", "list", "members", "automations", "profile", "org", "calendar", "dashboard", "usage", "detail"]);
 const FILTER_KEYS = ["q", "member", "status", "division", "priority", "tag", "from", "to"];
 const COUNT_KEYS = ["member", "status", "division", "priority", "tag", "from", "to"];
 const SYNC_KINDS = ["topbar-sync-demo", "topbar-sync-ok", "topbar-sync-off", "topbar-sync-busy"];
@@ -15,6 +15,7 @@ const VIEW_LABEL = {
   org: "Org chart",
   calendar: "Calendar",
   dashboard: "Dashboard",
+  usage: "Usage",
 };
 
 const viewModules = new Map();
@@ -182,6 +183,8 @@ const DX_CARDS = [
   ".empty",
   ".app-error",
   ".topbar-menu",
+  ".usage-panel",
+  ".usage-kpi",
 ].join(",");
 
 function tagDxCards(root) {
@@ -441,6 +444,8 @@ function syncChrome(query, view, state) {
   $("demo-banner").hidden = !state.demo;
   syncTabs(view);
   syncFilters(query);
+  const filters = document.querySelector(".filters");
+  if (filters) filters.hidden = view === "usage";
   placeIndicator();
   syncTopbarHeight();
   syncInert();

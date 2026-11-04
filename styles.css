@@ -5280,3 +5280,236 @@ html.dark .auto-status .chip {
 .modal input {
   font-family: var(--dx-font);
 }
+
+.list-mcard .card-cost,
+.list-titleblock .card-cost,
+.detail-hero .card-cost,
+.profile-job .card-cost,
+.dash-job-body .card-cost {
+  margin-top: 0;
+  max-width: 100%;
+}
+
+.usage-chip {
+  position: relative;
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  max-width: 100%;
+  min-height: 22px;
+  margin: 0;
+  padding: 0 8px;
+  border: 1px solid color-mix(in srgb, var(--dx-accent, #2563eb) 35%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--dx-accent, #2563eb) 12%, transparent);
+  color: var(--dx-text);
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+}
+
+.usage-chip-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detail-entry .usage-chip,
+.timeline-body .usage-chip {
+  margin-top: 6px;
+}
+
+.usage {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.usage-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.usage-intro { min-width: 0; }
+
+.usage-title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.usage-updated,
+.usage-lead,
+.usage-note,
+.usage-empty,
+.usage-row-sub {
+  margin: 4px 0 0;
+  color: var(--dx-muted);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.usage-note {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: var(--dx-fill);
+}
+
+.usage-switches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.usage-switch {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--dx-border);
+  border-radius: 999px;
+  background: var(--dx-card);
+}
+
+.usage-toggle {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--dx-text);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.usage-toggle.is-on,
+.usage-toggle[aria-pressed="true"] {
+  background: var(--dx-accent);
+  color: var(--dx-accent-fg, #fff);
+}
+
+.usage-kpis {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.usage-kpi {
+  padding: 12px 14px;
+  min-width: 0;
+}
+
+.usage-kpi-value {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
+}
+
+.usage-kpi-label {
+  margin: 4px 0 0;
+  color: var(--dx-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.usage-panel {
+  padding: 14px;
+  min-width: 0;
+}
+
+.usage-h {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.usage-split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.usage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  max-height: 28rem;
+  overflow: auto;
+}
+
+.usage-row { min-width: 0; }
+
+.usage-row-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.usage-row-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  font-weight: 650;
+}
+
+.usage-row-value {
+  flex: none;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.usage-track {
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 99px;
+  background: var(--dx-fill);
+  overflow: hidden;
+}
+
+.usage-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--dx-accent, #2563eb);
+  width: 0;
+}
+
+.usage-fill.is-over { background: #dc2626; }
+
+@media (min-width: 720px) {
+  .usage-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (min-width: 800px) {
+  .usage-split { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 719px) {
+  .usage-title { font-size: 1.2rem; }
+  .usage-kpi-value { font-size: 1.15rem; }
+  .usage-switch,
+  .usage-switches { width: 100%; }
+  .usage-switch { display: flex; }
+  .usage-toggle { flex: 1; }
+}

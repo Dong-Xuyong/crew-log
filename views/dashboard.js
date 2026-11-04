@@ -453,6 +453,8 @@ function dashJob(h, ui, store, job, now, openJob) {
       h("span", { class: "dash-job-av", "aria-hidden": "true" }, ui.avatar(job.lead || "?", { size: "sm", ring: true })),
       h("span", { class: "dash-job-body" },
         h("span", { class: "dash-job-title", text: job.title || "Untitled job" }),
+        ui.jobMeta(job),
+        ui.usageChip(job.usage),
         when.text ? h("span", { class: cx("dash-job-meta", when.late && "dash-late"), text: when.text }) : null
       ),
       h("span", { class: "dash-job-go", "aria-hidden": "true" }, ui.icon("arrow-right", { size: 16 }))

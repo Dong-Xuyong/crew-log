@@ -302,6 +302,8 @@ function jobRow(h, ui, store, job, now, openJob) {
       on: { click: () => openJob(job.id) }
     },
       h("span", { class: "profile-job-title", text: job.title || "Untitled job" }),
+      ui.jobMeta(job),
+      ui.usageChip(job.usage),
       job.status ? ui.statusChip(job.status) : null,
       due ? h("span", { class: cx("profile-job-due", late && "profile-late"), text: due }) : null
     )
@@ -358,7 +360,8 @@ function timelineItem(h, ui, store, item, openJob) {
           : h("span", { class: "timeline-static", text: title }),
         when ? h("time", timeProps) : null
       ),
-      entry.text ? h("p", { class: "timeline-text", text: entry.text }) : null
+      entry.text ? h("p", { class: "timeline-text", text: entry.text }) : null,
+      ui.usageChip(entry.usage)
     )
   );
 }

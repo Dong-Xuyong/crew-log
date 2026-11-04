@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "updatedAt": "2026-11-04T18:00:00+00:00",
+  "plan": {
+    "name": "Ultra",
+    "pools": [
+      { "id": "cursor", "label": "Cursor models", "limitUsd": 400, "usedUsd": 12.4 },
+      { "id": "other", "label": "Other models", "limitUsd": 200, "usedUsd": 3.4 },
+      { "id": "grokbot", "label": "Grok Bot weekly", "limitPct": 100, "usedPct": 18, "resetsAt": "2026-11-09T00:00:00+00:00" }
+    ]
+  },
+  "events": [
+    {
+      "id": "evt_grok_demo",
+      "at": "2026-11-02T10:15:00+00:00",
+      "model": "grok-4.7",
+      "tokensIn": 820000,
+      "tokensOut": 310000,
+      "tokensCache": 70000,
+      "usd": 0.84,
+      "eur": 0.77,
+      "bot": "grokbot",
+      "jobId": "job_20261006_ab12",
+      "source": "list-price"
+    },
+    {
+      "id": "evt_loose",
+      "at": "2026-11-02T18:00:00+00:00",
+      "model": "grok-4.7",
+      "tokensIn": 50000,
+      "tokensOut": 10000,
+      "tokensCache": 0,
+      "usd": 0.05,
+      "eur": 0.05,
+      "source": "manual"
+    },
+    {
+      "id": "evt_job_only",
+      "at": "2026-11-03T09:00:00+00:00",
+      "model": "claude-opus-4.5",
+      "tokensIn": 200000,
+      "tokensOut": 80000,
+      "tokensCache": 0,
+      "usd": 3.4,
+      "eur": 3.12,
+      "jobId": "job_20261103_aa11",
+      "source": "cursor-csv"
+    },
+    {
+      "id": "evt_cursor_oct",
+      "at": "2026-10-20T12:00:00+01:00",
+      "model": "gpt-5.1",
+      "tokensIn": 100000,
+      "tokensOut": 20000,
+      "tokensCache": 40000,
+      "usd": 0.55,
+      "eur": 0.51,
+      "bot": "cursor",
+      "source": "cursor-csv"
+    },
+    {
+      "id": "evt_cursor_job",
+      "at": "2026-10-21T15:00:00+01:00",
+      "model": "composer-2.5",
+      "tokensIn": 40000,
+      "tokensOut": 8000,
+      "tokensCache": 2000,
+      "usd": 0.22,
+      "eur": 0.2,
+      "bot": "cursor",
+      "jobId": "job_20261021_bb22",
+      "cloudAgentId": "ca_demo",
+      "source": "cursor-csv"
+    }
+  ],
+  "daily": [
+    {
+      "date": "2026-11-02",
+      "usd": 0.89,
+      "eur": 0.82,
+      "byModel": { "grok-4.7": { "usd": 0.89, "eur": 0.82 } },
+      "byBot": {
+        "grokbot": { "usd": 0.84, "eur": 0.77 },
+        "unattributed": { "usd": 0.05, "eur": 0.05 }
+      }
+    },
+    {
+      "date": "2026-10-20",
+      "usd": 0.55,
+      "eur": 0.51,
+      "byModel": { "gpt-5.1": { "usd": 0.55, "eur": 0.51 } },
+      "byBot": { "cursor": { "usd": 0.55, "eur": 0.51 } }
+    }
+  ]
+}

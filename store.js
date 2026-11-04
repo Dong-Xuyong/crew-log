@@ -1,3 +1,11 @@
+import {
+  USAGE_FIXTURE,
+  USAGE_URL,
+  demoUsageRequested,
+  normalizeUsage,
+  previewUsageFromEvent,
+} from "./usage.js";
+
 export const STATUSES = ["todo", "in_progress", "blocked", "review", "complete", "cancelled"];
 export const STATUS_LABEL = {
   todo: "To do",
@@ -79,7 +87,15 @@ export const state = {
   lastSync: null,
   error: null,
   changedIds: new Set(),
+  usage: null,
+  usageMissing: false,
+  usageLoading: false,
+  usageError: null,
+  usageDemo: false,
 };
+
+let usageFlight = null;
+let demoStampFor = null;
 
 function emit() {
   const current = Array.from(listeners);
@@ -424,6 +440,7 @@ export function setData(data, { demo = false } = {}) {
   state.data = normalized;
   state.demo = demo;
   state.changedIds = changedIds;
+  maybeStampDemo();
   emit();
 }
 
@@ -462,8 +479,161 @@ export function clearToken() {
   store.removeItem(CACHE_KEY);
 }
 
-export async function refresh() {
-  if (!hasToken()) return;
+function decodeBase64(b64) {
+  const clean = String(b64 || "").replace(/\s/g, "");
+  const binary = atob(clean);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
+function readTokenConfig() {
+  const store = storage();
+  if (!store) return null;
+  try {
+    const cfg = JSON.parse(store.getItem(TOKEN_KEY) || "null");
+    if (!cfg || typeof cfg.token !== "string" || !cfg.token.trim()) return null;
+    return { token: cfg.token.trim(), repo: cfg.repo || REPO };
+  } catch (err) {
+    void err;
+    return null;
+  }
+}
+
+async function fetchUsageWithToken() {
+  const cfg = readTokenConfig();
+  if (!cfg) return null;
+  const response = await fetch(`https://api.github.com/repos/${cfg.repo}/contents/usage.json`, {
+    cache: "no-store",
+    headers: {
+      Authorization: `Bearer ${cfg.token}`,
+      Accept: "application/vnd.github+json",
+    },
+  });
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error(`Usage HTTP ${response.status}`);
+  const file = await response.json();
+  let parsed = null;
+  if (file && typeof file.content === "string" && file.content.trim()) {
+    parsed = JSON.parse(decodeBase64(file.content));
+  } else if (file && file.download_url) {
+    const download = await fetch(file.download_url, {
+      cache: "no-store",
+      headers: { Authorization: `Bearer ${cfg.token}`, Accept: "application/vnd.github+json" },
+    });
+    if (download.status === 404) return null;
+    if (!download.ok) throw new Error(`Usage HTTP ${download.status}`);
+    parsed = await download.json();
+  }
+  return normalizeUsage(parsed);
+}
+
+async function fetchUsagePayload() {
+  if (demoUsageRequested()) {
+    const response = await fetch(USAGE_FIXTURE, { cache: "no-store" });
+    if (response.status === 404) return { missing: true, demo: true };
+    if (!response.ok) throw new Error("Sample usage could not be loaded.");
+    const usage = normalizeUsage(await response.json());
+    if (!usage) return { missing: true, demo: true };
+    return { usage, demo: true };
+  }
+
+  let rawStatus = 0;
+  let rawError = null;
+  try {
+    const response = await fetch(USAGE_URL, { cache: "no-store" });
+    rawStatus = response.status;
+    if (response.ok) {
+      const usage = normalizeUsage(await response.json());
+      if (!usage) return { missing: true };
+      return { usage, demo: false };
+    }
+    if (response.status !== 404) rawError = new Error(`Usage HTTP ${response.status}`);
+  } catch (err) {
+    rawError = err instanceof Error ? err : new Error("Usage data could not be loaded.");
+  }
+
+  if (hasToken()) {
+    const fromToken = await fetchUsageWithToken();
+    if (fromToken) return { usage: fromToken, demo: false };
+    return { missing: true };
+  }
+  if (rawStatus === 404) return { missing: true };
+  if (rawError) throw rawError;
+  return { missing: true };
+}
+
+function maybeStampDemo() {
+  if (!demoUsageRequested() || !state.demo || !state.data || !state.usage) return;
+  if (demoStampFor === state.data) return;
+  const jobs = Array.isArray(state.data.jobs) ? state.data.jobs : [];
+  const job = jobs.find((item) => item && typeof item === "object");
+  if (!job) return;
+  demoStampFor = state.data;
+  if (job.usage) return;
+  const sample = (state.usage.events || []).map(previewUsageFromEvent).find(Boolean);
+  if (!sample) return;
+  job.usage = sample;
+  if (typeof job.model !== "string" || !job.model.trim()) job.model = sample.model;
+  if (!Number.isInteger(job.agent_count)) job.agent_count = 2;
+  if (typeof job.effort !== "string" || !job.effort.trim()) job.effort = "medium";
+  const entry = Array.isArray(job.log) ? job.log.find((item) => item && typeof item === "object") : null;
+  if (entry && !entry.usage) {
+    entry.usage = {
+      model: sample.model,
+      tokensIn: 120000,
+      tokensOut: 40000,
+      tokensCache: 0,
+      usd: 0.12,
+      eur: 0.11,
+      source: sample.source || "manual",
+      eventIds: [],
+    };
+  }
+}
+
+async function loadUsageOnce() {
+  state.usageLoading = true;
+  emit();
+  try {
+    const result = await fetchUsagePayload();
+    if (result.missing) {
+      state.usage = null;
+      state.usageMissing = true;
+      state.usageError = null;
+      state.usageDemo = false;
+      demoStampFor = null;
+    } else {
+      state.usage = result.usage;
+      state.usageMissing = false;
+      state.usageError = null;
+      state.usageDemo = !!result.demo;
+    }
+  } catch (err) {
+    void err;
+    state.usageError = "Usage data could not be loaded.";
+  } finally {
+    state.usageLoading = false;
+    maybeStampDemo();
+    emit();
+  }
+}
+
+export function loadUsage() {
+  if (usageFlight) return usageFlight;
+  usageFlight = loadUsageOnce().finally(() => {
+    usageFlight = null;
+  });
+  return usageFlight;
+}
+
+export async function refresh(options) {
+  const opts = options || {};
+  const usagePromise = opts.skipUsage ? Promise.resolve() : loadUsage();
+  if (!hasToken()) {
+    await usagePromise;
+    return;
+  }
   state.loading = true;
   state.error = null;
   emit();
@@ -490,17 +660,19 @@ export async function refresh() {
     state.loading = false;
     emit();
   }
+  await usagePromise;
 }
 
 export async function init() {
   state.loading = true;
   state.error = null;
   emit();
+  const usagePromise = loadUsage();
   try {
     if (hasToken()) {
       const cached = readCache();
       if (cached) setData(cached, { demo: false });
-      await refresh();
+      await refresh({ skipUsage: true });
     } else {
       await loadDemo();
     }
@@ -511,6 +683,11 @@ export async function init() {
       state.loading = false;
       emit();
     }
+  }
+  try {
+    await usagePromise;
+  } catch (err) {
+    void err;
   }
 }
 
