@@ -10,7 +10,9 @@ Connect in Settings: paste a fine-grained GitHub token scoped to the repository 
 
 Avatars: upload 1024x1024 PNGs to assets/avatars/<id>.png, then run the deploy script. It writes 256px WebP thumbs at assets/avatars/thumb/<id>.webp.
 
-Views: Board, List, Members, Org, Calendar, Dashboard. Profile opens from a member. A job opens in the drawer.
+Views: Board, List, Members, Org, Calendar, Dashboard, Usage. Profile opens from a member. A job opens in the drawer.
+
+Usage reads `usage.json` from the progress-sync repo (raw GitHub, then the saved token if that file is missing). A missing file shows "No usage data yet" and does not change jobs that have no `usage` object. Optional job fields `model`, `agent_count`, and `effort` still show on the card when they are set. Schema: USAGE.md. Sample numbers load only with `?demo=1` (`test/usage.fixture.json`).
 
 Keyboard: `/` focuses search. Esc closes the drawer and settings.
 

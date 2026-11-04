@@ -321,6 +321,7 @@ function entryNode(ui, store, ctx, entry, now) {
       ),
       text ? ui.h("p", { class: "detail-prose" }, text) : null,
       links.length ? ui.h("div", { class: "detail-entry-links" }, ...links) : null,
+      ui.usageChip(entry && entry.usage),
       when
         ? ui.h(
             "p",
@@ -400,8 +401,10 @@ function hero(ui, store, ctx, job) {
       { class: "detail-chips" },
       job.status ? ui.statusChip(job.status) : null,
       job.priority ? ui.priorityChip(job.priority) : null,
-      job.division ? ui.divisionBadge(job.division) : null
+      job.division ? ui.divisionBadge(job.division) : null,
+      ui.usageChip(job && job.usage)
     ),
+    ui.jobMeta(job),
     tags.length ? ui.h("div", { class: "detail-tags" }, ...tags.map((tag) => ui.tagChip(tag))) : null,
     lead || assignees.length
       ? ui.h(

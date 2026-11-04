@@ -79,6 +79,7 @@ Each job object:
 - `model` (optional): string naming the model(s) used, for example `claude-opus-5-5` or `grok-4.7`. Omit if unknown.
 - `agent_count` (optional): integer, how many agents worked the job. Omit if unknown.
 - `effort` (optional): string, for example `low`, `medium`, `high`. Omit if unknown.
+- `usage` (optional): cost for this job. Omit the whole object when you do not have numbers. Shape is in USAGE.md. The website still renders the job when this field is missing.
 - `updatedAt`: ISO-8601. Set it whenever you change the job.
 
 Each log entry:
@@ -89,6 +90,7 @@ Each log entry:
 - `action`: `started`, `update`, `handoff`, `blocked`, `done`, or `comment`.
 - `text`: exactly what that member did. Concrete, past tense. Include paths and links when you have them.
 - `links`: array of `{ "label", "url" }`, or `[]`.
+- `usage` (optional): cost for this log entry only. Same shape as job `usage`. Omit it when unknown. See USAGE.md.
 
 ## Automations
 

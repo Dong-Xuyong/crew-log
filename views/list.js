@@ -440,7 +440,9 @@ function dataRow(ui, store, ctx, job, now) {
         "span",
         { class: "list-titleblock" },
         dateText ? ui.h("span", { class: "list-date" }, dateText) : null,
-        ui.h("span", { class: "list-title" }, title)
+        ui.h("span", { class: "list-title" }, title),
+        ui.jobMeta(job),
+        ui.usageChip(job.usage)
       )
     ),
     ui.h("td", {}, ids.length ? ui.avatarStack(ids, { max: 3, size: "sm" }) : "—"),
@@ -545,6 +547,8 @@ function mobileCard(ui, store, ctx, job, now) {
         )
       : null,
     ui.h("span", { class: "list-title" }, title),
+    ui.jobMeta(job),
+    ui.usageChip(job.usage),
     ui.h(
       "span",
       { class: "list-mmid" },

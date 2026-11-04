@@ -5,6 +5,7 @@ import {
   division as findDivision,
   member as findMember,
 } from "./store.js";
+import { jobMetaLine, usageChipParts } from "./usage.js";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 const AVATAR_PX = { xs: 20, sm: 28, md: 36, lg: 56, xl: 96 };
@@ -549,6 +550,24 @@ export function priorityChip(priority) {
 
 export function tagChip(tag) {
   return h("span", { class: "tag", text: tag == null ? "" : String(tag) });
+}
+
+export function jobMeta(job) {
+  const text = jobMetaLine(job);
+  if (!text) return null;
+  return h("span", { class: "card-cost", title: text, text });
+}
+
+export function usageChip(usage) {
+  const parts = usageChipParts(usage);
+  if (!parts) return null;
+  const title = parts.title || parts.text;
+  return h(
+    "span",
+    { class: "usage-chip", title },
+    h("span", { class: "usage-chip-text", text: parts.text }),
+    parts.title ? h("span", { class: "sr-only" }, `. ${parts.title}`) : null,
+  );
 }
 
 export function divisionBadge(divisionId) {
