@@ -127,7 +127,9 @@ export function usageChipParts(usage) {
   const parts = [];
   if (model) parts.push(model);
   if (tokens.any) parts.push(`${formatTokens(tokens.total)} tok`);
+  const usdIsNull = Object.prototype.hasOwnProperty.call(usage, "usd") && usd == null;
   if (usd != null) parts.push(formatMoney(usd, "usd"));
+  else if (usdIsNull) parts.push("no list price");
   else if (eur != null) parts.push(formatMoney(eur, "eur"));
   if (!parts.length) return null;
 
@@ -164,27 +166,49 @@ export function monthLabel(key) {
   return name ? `${name} ${match[1]}` : key;
 }
 
-function amountOf(record, currency) {
-  const key = currency === "eur" ? "eur" : "usd";
-  if (typeof record === "number") {
-    if (currency === "eur") return { amount: 0, missing: true };
-    return { amount: record, missing: false };
-  }
-  if (!isRecord(record) || !Object.prototype.hasOwnProperty.call(record, key) || record[key] == null || record[key] === "") {
-    return { amount: 0, missing: true };
-  }
-  const n = finite(record[key]);
-  if (n == null) return { amount: 0, missing: true };
-  return { amount: n, missing: false };
-}
-
-function addBucket(map, key, amount, tokens) {
+function addBucket(map, key, amount, tokens, unpriced) {
   const name = key || "unknown";
-  const row = map.get(name) || { key: name, amount: 0, tokens: 0, count: 0 };
+  const row = map.get(name) || { key: name, amount: 0, tokens: 0, count: 0, unpriced: 0 };
   row.amount += amount;
   row.tokens += tokens;
   row.count += 1;
+  if (unpriced) row.unpriced += 1;
   map.set(name, row);
+}
+
+function priceOf(record, currency) {
+  if (typeof record === "number") {
+    if (currency === "eur") return { amount: 0, unpriced: false, missing: true };
+    return { amount: record, unpriced: false, missing: false };
+  }
+  if (!isRecord(record)) return { amount: 0, unpriced: false, missing: true };
+  const usd = finite(record.usd);
+  const noListPrice = Object.prototype.hasOwnProperty.call(record, "usd") && (record.usd == null || record.usd === "");
+  if (currency === "eur") {
+    const eur = finite(record.eur);
+    if (eur != null) return { amount: eur, unpriced: false, missing: false };
+    if (noListPrice) return { amount: 0, unpriced: true, missing: false };
+    return { amount: 0, unpriced: false, missing: true };
+  }
+  if (noListPrice) return { amount: 0, unpriced: true, missing: false };
+  if (usd == null) return { amount: 0, unpriced: false, missing: true };
+  return { amount: usd, unpriced: false, missing: false };
+}
+
+export function costLabel(row, currency) {
+  const unpriced = row && row.unpriced ? row.unpriced : 0;
+  const count = row && row.count ? row.count : 0;
+  const amount = row && Number.isFinite(row.amount) ? row.amount : 0;
+  if (unpriced && count && unpriced >= count && !(amount > 0)) return "no list price";
+  return formatMoney(amount, currency) || (currency === "eur" ? "€0.00" : "$0.00");
+}
+
+export function totalLabel(summary) {
+  if (!summary) return "";
+  const unpriced = summary.unpriced || 0;
+  const count = summary.eventCount || 0;
+  if (unpriced && count && unpriced >= count && !(summary.total > 0)) return "no list price";
+  return formatMoney(summary.total, summary.currency) || (summary.currency === "eur" ? "€0.00" : "$0.00");
 }
 
 function sortAmount(rows) {
@@ -199,15 +223,16 @@ function rollNamed(map, source, currency, unattributed) {
   if (!isRecord(source)) return;
   Object.keys(source).forEach((key) => {
     const value = source[key];
-    const money = amountOf(value, currency);
+    const money = priceOf(value, currency);
     const tokens = tokenParts(value).total;
     if (key === "unattributed" && unattributed) {
       unattributed.amount += money.amount;
       unattributed.tokens += tokens;
       unattributed.count += 1;
+      if (money.unpriced) unattributed.unpriced += 1;
       return;
     }
-    addBucket(map, key, money.amount, tokens);
+    addBucket(map, key, money.amount, tokens, money.unpriced);
   });
 }
 
@@ -235,15 +260,16 @@ export function planPools(usage) {
     const limitPct = finite(pool.limitPct);
     const usedUsd = finite(pool.usedUsd);
     const limitUsd = finite(pool.limitUsd);
-    const percentPool = usedPct != null || limitPct != null || (id === "grokbot" && usedUsd == null && limitUsd == null);
-    if (percentPool) {
+    const resetsAt = text(pool.resetsAt);
+    const percentOnly = limitUsd == null && (usedPct != null || limitPct != null || (id === "grokbot" && usedUsd == null));
+    if (percentOnly) {
       return {
         id,
         label,
         unit: "pct",
         used: usedPct == null ? 0 : usedPct,
-        limit: limitPct == null ? 100 : limitPct,
-        resetsAt: text(pool.resetsAt),
+        limit: limitPct == null ? (usedPct == null ? 100 : null) : limitPct,
+        resetsAt,
       };
     }
     return {
@@ -252,7 +278,7 @@ export function planPools(usage) {
       unit: "usd",
       used: usedUsd == null ? 0 : usedUsd,
       limit: limitUsd == null ? 0 : limitUsd,
-      resetsAt: text(pool.resetsAt),
+      resetsAt,
     };
   });
 }
@@ -264,45 +290,50 @@ export function summarize(usage, currency) {
   const byBot = new Map();
   const byDay = new Map();
   const byMonth = new Map();
-  const unattributed = { key: "unattributed", amount: 0, tokens: 0, count: 0 };
-  const jobOnly = { key: "jobs", amount: 0, tokens: 0, count: 0 };
+  const unattributed = { key: "unattributed", amount: 0, tokens: 0, count: 0, unpriced: 0 };
+  const jobOnly = { key: "jobs", amount: 0, tokens: 0, count: 0, unpriced: 0 };
   let total = 0;
   let eventCount = 0;
   let missingMoney = 0;
+  let unpriced = 0;
 
   if (file.events.length) {
     file.events.forEach((event) => {
-      const money = amountOf(event, code);
+      const money = priceOf(event, code);
       const tokens = tokenParts(event).total;
-      if (money.missing) missingMoney += 1;
+      if (money.unpriced) unpriced += 1;
+      else if (money.missing) missingMoney += 1;
       total += money.amount;
       eventCount += 1;
-      addBucket(byModel, text(event.model) || "unknown", money.amount, tokens);
+      addBucket(byModel, text(event.model) || "unknown", money.amount, tokens, money.unpriced);
       const day = lisbonDay(event.at) || "undated";
-      addBucket(byDay, day, money.amount, tokens);
-      addBucket(byMonth, monthKey(day) || "undated", money.amount, tokens);
+      addBucket(byDay, day, money.amount, tokens, money.unpriced);
+      addBucket(byMonth, monthKey(day) || "undated", money.amount, tokens, money.unpriced);
       const bot = text(event.bot);
       const jobId = text(event.jobId);
       if (!bot && !jobId) {
         unattributed.amount += money.amount;
         unattributed.tokens += tokens;
         unattributed.count += 1;
+        if (money.unpriced) unattributed.unpriced += 1;
       } else if (!bot && jobId) {
         jobOnly.amount += money.amount;
         jobOnly.tokens += tokens;
         jobOnly.count += 1;
+        if (money.unpriced) jobOnly.unpriced += 1;
       } else if (bot) {
-        addBucket(byBot, bot, money.amount, tokens);
+        addBucket(byBot, bot, money.amount, tokens, money.unpriced);
       }
     });
   } else {
     (file.daily || []).forEach((row) => {
-      const money = amountOf(row, code);
-      if (money.missing) missingMoney += 1;
+      const money = priceOf(row, code);
+      if (money.unpriced) unpriced += 1;
+      else if (money.missing) missingMoney += 1;
       total += money.amount;
       const day = text(row.date) || "undated";
-      addBucket(byDay, day, money.amount, 0);
-      addBucket(byMonth, monthKey(day) || (day.length >= 7 ? day.slice(0, 7) : "undated"), money.amount, 0);
+      addBucket(byDay, day, money.amount, 0, money.unpriced);
+      addBucket(byMonth, monthKey(day) || (day.length >= 7 ? day.slice(0, 7) : "undated"), money.amount, 0, money.unpriced);
       rollNamed(byModel, row.byModel, code, null);
       rollNamed(byBot, row.byBot, code, unattributed);
     });
@@ -313,6 +344,7 @@ export function summarize(usage, currency) {
     total,
     eventCount,
     missingMoney,
+    unpriced,
     byModel: sortAmount(Array.from(byModel.values())),
     byBot: sortAmount(Array.from(byBot.values())),
     byDay: sortDayDesc(Array.from(byDay.values())),

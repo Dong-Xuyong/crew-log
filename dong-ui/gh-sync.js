@@ -119,10 +119,71 @@
     });
   }
 
+  function authFetch(cfg, url, accept) {
+    return fetch(url, {
+      method: "GET",
+      cache: "no-store",
+      headers: {
+        Authorization: "Bearer " + cfg.token,
+        Accept: accept,
+      },
+    }).then(function (res) {
+      if (res.status === 401) {
+        localStorage.removeItem(CONFIG_KEY);
+        throw new Error("GitHub token rejected; you will be asked for a new one");
+      }
+      return res;
+    });
+  }
+
+  function textIfOk(res) {
+    if (!res || !res.ok) return Promise.resolve("");
+    return res.text().then(function (text) {
+      return text && String(text).trim() ? text : "";
+    });
+  }
+
+  // Contents API leaves content empty above 1 MB. Read the bytes with the raw
+  // media type, then download_url, then the git blob. Same path for every file,
+  // including crew-log.json.
+  function readBlob(cfg, file) {
+    if (!file || !file.sha) throw new Error("GitHub file has no content");
+    return authFetch(cfg, API + cfg.repo + "/git/blobs/" + file.sha, "application/vnd.github.raw").then(function (res) {
+      return textIfOk(res).then(function (text) {
+        if (!text) throw new Error("GitHub file has no content");
+        return JSON.parse(text);
+      });
+    });
+  }
+
+  function readDownload(cfg, file) {
+    if (!file || !file.download_url) return readBlob(cfg, file);
+    return authFetch(cfg, file.download_url, "application/vnd.github.raw").then(function (res) {
+      return textIfOk(res).then(function (text) {
+        if (text) return JSON.parse(text);
+        return readBlob(cfg, file);
+      });
+    });
+  }
+
+  function readOversized(cfg, path, file) {
+    return authFetch(cfg, API + cfg.repo + "/contents/" + path, "application/vnd.github.raw").then(function (res) {
+      return textIfOk(res).then(function (text) {
+        if (text) return JSON.parse(text);
+        return readDownload(cfg, file);
+      });
+    });
+  }
+
   function fetchRemote(cfg, appId) {
-    return request(cfg, "GET", appId + ".json").then(function (file) {
+    var path = appId + ".json";
+    return request(cfg, "GET", path).then(function (file) {
       if (!file) return null;
-      return { sha: file.sha, data: JSON.parse(fromBase64(file.content)) };
+      var inline = file.content && String(file.content).replace(/\s/g, "");
+      if (inline) return { sha: file.sha, data: JSON.parse(fromBase64(file.content)) };
+      return readOversized(cfg, path, file).then(function (data) {
+        return { sha: file.sha, data: data };
+      });
     });
   }
 
