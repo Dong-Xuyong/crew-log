@@ -1,3 +1,4 @@
+import { fetchPrivateJson } from "./github-file.js";
 import {
   USAGE_FIXTURE,
   USAGE_URL,
@@ -479,14 +480,6 @@ export function clearToken() {
   store.removeItem(CACHE_KEY);
 }
 
-function decodeBase64(b64) {
-  const clean = String(b64 || "").replace(/\s/g, "");
-  const binary = atob(clean);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
-  return new TextDecoder().decode(bytes);
-}
-
 function readTokenConfig() {
   const store = storage();
   if (!store) return null;
@@ -503,29 +496,11 @@ function readTokenConfig() {
 async function fetchUsageWithToken() {
   const cfg = readTokenConfig();
   if (!cfg) return null;
-  const response = await fetch(`https://api.github.com/repos/${cfg.repo}/contents/usage.json`, {
-    cache: "no-store",
-    headers: {
-      Authorization: `Bearer ${cfg.token}`,
-      Accept: "application/vnd.github+json",
-    },
-  });
-  if (response.status === 404) return null;
-  if (!response.ok) throw new Error(`Usage HTTP ${response.status}`);
-  const file = await response.json();
-  let parsed = null;
-  if (file && typeof file.content === "string" && file.content.trim()) {
-    parsed = JSON.parse(decodeBase64(file.content));
-  } else if (file && file.download_url) {
-    const download = await fetch(file.download_url, {
-      cache: "no-store",
-      headers: { Authorization: `Bearer ${cfg.token}`, Accept: "application/vnd.github+json" },
-    });
-    if (download.status === 404) return null;
-    if (!download.ok) throw new Error(`Usage HTTP ${download.status}`);
-    parsed = await download.json();
-  }
-  return normalizeUsage(parsed);
+  const file = await fetchPrivateJson(cfg.repo, "usage.json", cfg.token);
+  if (!file) return null;
+  const usage = normalizeUsage(file.data);
+  if (!usage) throw new Error("Usage file was empty");
+  return usage;
 }
 
 async function fetchUsagePayload() {

@@ -1,4 +1,4 @@
-import { formatMoney, formatTokens, monthLabel, planPools, summarize } from "../usage.js";
+import { costLabel, formatMoney, formatTokens, monthLabel, planPools, summarize, totalLabel } from "../usage.js";
 
 let currency = "usd";
 let span = "day";
@@ -38,6 +38,7 @@ function subLine(row) {
   const bits = [];
   if (row.tokens) bits.push(`${formatTokens(row.tokens)} tok`);
   if (row.count) bits.push(`${row.count} ${row.count === 1 ? "event" : "events"}`);
+  if (row.unpriced && row.count && row.unpriced < row.count) bits.push(`${row.unpriced} no list price`);
   return bits.join(" · ");
 }
 
@@ -108,7 +109,7 @@ function amountRows(ui, rows, code) {
     "ul",
     { class: "usage-list" },
     ...rows.map((row) => {
-      const value = moneyText(row.amount, code);
+      const value = costLabel(row, code);
       return barRow(ui, row.label || row.key, value, subLine(row), fillPct(row.amount, 0, max), false, value);
     })
   );
@@ -121,18 +122,19 @@ function poolRows(ui, store, pools) {
     { class: "usage-list" },
     ...pools.map((pool) => {
       const pct = pool.unit === "pct";
+      const openPct = pct && pool.limit == null;
       const usedText = pct ? `${trimNum(pool.used)}%` : moneyText(pool.used, "usd");
-      const limitText = pct ? `${trimNum(pool.limit)}%` : (pool.limit > 0 ? moneyText(pool.limit, "usd") : "");
-      const value = limitText ? `${usedText} of ${limitText}` : usedText;
-      const ratio = pool.limit > 0 ? pool.used / pool.limit : 0;
-      const over = pool.limit > 0 && pool.used > pool.limit;
+      const limitText = openPct ? "" : pct ? `${trimNum(pool.limit)}%` : (pool.limit > 0 ? moneyText(pool.limit, "usd") : "");
+      const value = openPct ? `${trimNum(pool.used)}% used` : limitText ? `${usedText} of ${limitText}` : usedText;
+      const fillLimit = openPct ? 100 : pool.limit;
+      const over = fillLimit > 0 && pool.used > fillLimit;
       const bits = [];
-      if (!pool.limit) bits.push("No limit set");
+      if (!pct && !pool.limit) bits.push("No limit set");
       if (pool.resetsAt) {
         const when = store.fmtDateTime(pool.resetsAt) || pool.resetsAt;
         bits.push(`Resets ${when}`);
       }
-      return barRow(ui, pool.label, value, bits.join(" · "), fillPct(pool.used, pool.limit), over, value);
+      return barRow(ui, pool.label, value, bits.join(" · "), fillPct(pool.used, fillLimit), over, value);
     })
   );
 }
@@ -228,11 +230,18 @@ export function render(root, ctx) {
       ui.h(
         "div",
         { class: "usage-kpis" },
-        kpi(ui, "Total", moneyText(summary.total, code)),
+        kpi(ui, "Total", totalLabel(summary)),
         kpi(ui, "Events", String(summary.eventCount)),
         kpi(ui, "Models", String(summary.byModel.length)),
-        kpi(ui, "unattributed", moneyText(summary.unattributed.amount, code))
+        kpi(ui, "unattributed", costLabel(summary.unattributed, code))
       ),
+      summary.unpriced
+        ? ui.h(
+            "p",
+            { class: "usage-note" },
+            `${summary.unpriced} ${summary.unpriced === 1 ? "event has" : "events have"} no list price.`
+          )
+        : null,
       summary.missingMoney
         ? ui.h(
             "p",

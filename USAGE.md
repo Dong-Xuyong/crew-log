@@ -27,7 +27,7 @@ Add an optional `usage` object to a job, a log entry, or both. Leave it off when
 | `tokensIn` | number | Prompt tokens. |
 | `tokensOut` | number | Completion tokens. |
 | `tokensCache` | number | Cache read or write tokens, if the source reports them. |
-| `usd` | number | Cost in US dollars. |
+| `usd` | number or null | Cost in US dollars. `null` means there is no list price, so the chip says `no list price` instead of `$0.00`. Omit the field when the cost is simply unknown and should stay off the chip. |
 | `eur` | number | Cost in euros. |
 | `source` | string | `cursor-csv`, `list-price`, or `manual`. |
 | `eventIds` | string array | Ids of matching rows in `usage.json` `events`. Use `[]` when there are none. |
@@ -99,7 +99,7 @@ A network or HTTP error that is not a 404 shows **Usage data could not be loaded
 | `version` | `1`. |
 | `updatedAt` | ISO-8601 time the file was written. |
 | `plan.name` | Plan name, for example `Ultra`. |
-| `plan.pools[]` | One bar per pool. Dollar pools use `limitUsd` and `usedUsd`. The Grok Bot pool uses `limitPct` and `usedPct` (0–100). `resetsAt` is optional. |
+| `plan.pools[]` | One bar per pool. Dollar pools use `limitUsd` and `usedUsd`. A pool with `usedPct` and no `limitUsd` is a percent bar, labeled `17% used`. A pool that also has `limitPct` is labeled `18% of 100%`. `resetsAt` is optional. |
 | `events[]` | One model call or invoice row. `bot`, `jobId`, and `cloudAgentId` are optional. |
 | `daily[]` | Per-day rollup. `byModel` and `byBot` values are either a number (USD) or `{ "usd", "eur" }`. |
 
@@ -113,7 +113,11 @@ Dates are grouped in Europe/Lisbon, same as the rest of Crew Log.
 - **By bot** — events with a `bot`. 
 - **unattributed** — events with neither `bot` nor `jobId`.
 - **Jobs (no bot)** — events with a `jobId` and no `bot`. They stay in the model and day totals. They are not called unattributed, because they point at a job.
-- **By day / by month** — the Usage tab toggles between these. It also toggles USD and EUR. Plan pool bars stay in the unit stored on the pool (dollars or percent). An event missing the selected currency counts as zero and the tab says so.
+- **By day / by month** — the Usage tab toggles between these. It also toggles USD and EUR. Plan pool bars stay in the unit stored on the pool (dollars or percent). An event with `usd: null` still counts toward events and tokens. Its cost is **no list price**, not $0. An event that has dollars but no euros still counts as €0 in the euro view.
+
+## Large files
+
+`usage.json` and `crew-log.json` are read with the GitHub token when the raw URL is missing. Files over 1 MB come back from the Contents API with an empty `content` field. The page then requests the same path with `Accept: application/vnd.github.raw`. If that fails, it tries `download_url`, then the git blobs API with the same raw media type. Smaller files still use the base64 `content` field.
 
 ## Sample fixture
 
